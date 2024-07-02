@@ -1,0 +1,27 @@
+.bookmarks-page {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max-width);
+  margin: auto;
+  padding-left: 30px;
+  padding-bottom: 30px;
+  /* row-gap: 20px; */
+}
+
+.bookmarks-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.bookmarks-page-header-title {
+  font-size: 23px;
+}
+
+@media (max-width: 650px) {
+  .bookmarks-page {
+    padding: 10px;
+    padding-bottom: 60px;
+  }
+}

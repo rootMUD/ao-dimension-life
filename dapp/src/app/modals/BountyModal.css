@@ -1,0 +1,165 @@
+.bounty-modal-content {
+  padding-left: 25px;
+}
+
+.bounty-modal-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bounty-modal-header-title {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.bounty-modal-header-balance {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+  color: gray;
+  margin-right: 105px;
+}
+
+.bounty-modal-header-line {
+  width: 300px;
+  height: 1px;
+  margin-bottom: 20px;
+  background-color: lightgray;
+}
+
+.bounty-modal-header-line.tokens {
+  margin-bottom: unset;
+}
+
+.bounty-modal-tokens-title {
+  color: gray;
+  font-size: 17px;
+  margin-top: 15px;
+}
+
+.bounty-modal-token-row {
+  display: flex;
+  column-gap: 15px;
+  margin: 15px 0;
+}
+
+.bounty-modal-token-row.bounty {
+  margin: 5px 0;
+  /* align-items: flex-end; */
+}
+
+.bounty-modal-token-row.choose {
+  display: grid;
+  grid-template-columns: 150px 150px;
+  grid-gap: 10px;
+  margin-bottom: 5px;
+}
+
+.bounty-modal-token-row.message {
+  margin-bottom: 10px;
+}
+
+.bounty-modal-token {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 5px;
+  padding: 2px 10px;
+  color: white;
+  cursor: pointer;
+  background-color: var(--section-header-color);
+}
+
+.bounty-modal-input {
+  width: 150px;
+  text-align: center;
+  font-size: 20px;
+}
+
+.bounty-modal-input.message {
+  text-align: left;
+  font-size: unset;
+}
+
+
+.bounty-modal-label-unit {
+  width: 60px;
+  color: gray;
+  margin-top: 15px;
+  /* padding: 2px 5px; */
+  /* background-color: rgb(101, 101, 218); */
+}
+
+.bounty-modal-token.bounty {
+  border-radius: 5px;
+  background-color: var(--fire-color);
+}
+
+.bounty-modal-token.message {
+  border-radius: 5px;
+  padding: 2px 20px;
+}
+
+.bounty-modal-token-row {
+  display: flex;
+  column-gap: 10px;
+}
+
+.bounty-modal-token-card {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: var(--section-color);
+}
+
+.bounty-modal-token-card.picked {
+  border: 1px solid black;
+  background-color: var(--section-hover-color);
+}
+
+.bounty-modal-token-name {
+  font-size: 12px;
+  color: gray;
+}
+
+.bounty-modal-token-balance {
+  /* font-size: 15px; */
+  color: gray;
+}
+
+.bounty-modal-token-icon {
+  width: 25px;
+  height: 25px;
+}
+
+.bounty-modal-token-icon.circle {
+  border-radius: 50%;
+}
+
+.bounty-modal-token-icon.cred {
+  width: 25px;
+  height: unset;
+}
+
+@media (max-width: 650px) {
+  .modal-content {
+    max-width: 85%;
+  }
+
+  .bounty-modal-content {
+    padding-left: 15px;
+  }
+
+  .bounty-modal-token {
+    column-gap: 5px;
+    padding: 2px 8px;
+  }
+
+  .bounty-modal-input {
+    width: 135px;
+  }
+}

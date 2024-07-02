@@ -1,0 +1,152 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max-width);
+  margin: auto;
+  padding-left: 30px;
+  padding-bottom: 30px;
+  row-gap: 20px;
+}
+
+.home-chat-container {
+  margin-top: 30px;
+}
+
+.home-msg-line {
+  padding: 10px;
+  background-color: var(--section-color);
+  border-bottom: 1px solid rgb(233, 229, 229);
+}
+
+.home-msg-line:hover {
+  background-color: var(--section-hover-color);
+}
+
+.no_hover:hover {
+  background-color: var(--section-color);
+}
+
+.home-msg-header {
+  display: flex;
+  column-gap: 10px;
+}
+
+.home-msg-portrait {
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.my-portrait {
+  scale: 1.1;
+}
+
+.home-msg-text {
+  display: flex;
+  flex-direction: row;
+  column-gap: 18px;
+  align-items: center;
+}
+
+.home-msg-nickname {
+  font-weight: 600;
+  font-size: 17px;
+  margin-top: -1px;
+}
+
+.home-msg-address {
+  color: gray;
+  font-size: 12px;
+}
+
+.other-line {
+  align-self: flex-start;
+}
+
+.my-line {
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.home-msg-time {
+  font-size: 13px;
+  color: gray;
+}
+
+.home-input-message {
+  width: 500px;
+  border-radius: 10px;
+  border: 1px solid rgb(85, 103, 169);
+  padding: 5px 10px;
+  margin-right: 20px;
+}
+
+.home-input-message.nickname {
+  width: 189px;
+  height: 35px;
+  margin-left: 10px;
+  font-size: 18px;
+}
+
+.home-input-message.process {
+  height: 30px;
+}
+
+.home-input-container {
+  border-radius: 10px;
+  background-color: var(--section-color);
+}
+
+.home-actions {
+  display: flex;
+  margin: 10px;
+  justify-content: space-between;
+}
+
+.home-filter {
+  width: 120px;
+  border: none;
+  outline: none;
+}
+
+.home-page-tip-new-posts {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background-color: rgb(114, 114, 234);
+  cursor: pointer;
+}
+
+.home-page-tip-new-posts:hover {
+  background-color: rgb(80, 80, 209);
+}
+
+.home-page-temp-tip {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  position: fixed;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: rgb(114, 114, 234);
+}
+
+@media (max-width: 650px) {
+  .home-page {
+    padding: 10px;
+    margin-top: -15px;
+  }
+
+  .home-chat-container {
+    margin-top: 0px;
+  }
+
+  .home-msg-nickname {
+    font-size: 15px;
+  }
+}

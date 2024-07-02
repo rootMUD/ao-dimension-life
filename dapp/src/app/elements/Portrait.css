@@ -1,0 +1,96 @@
+.portrait-div-container {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 30px;
+  margin-top: 50px;
+}
+
+.portrait-div-container:hover {
+  background-color: lightgray;
+}
+
+.site-page-portrait {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.site-page-nickname {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.site-page-addr {
+  font-size: 13px;
+  color: gray;
+  /* margin-top: 3px; */
+}
+
+.connect {
+  width: 110px;
+  margin-top: 50px;
+  margin-left: 10px;
+}
+
+.connect.othent {
+  background-color: rgb(102, 102, 221);
+}
+
+.connect.othent:hover {
+  background-color: rgb(119, 119, 228);
+}
+
+.portrait-div-or {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: -30px;
+}
+
+.portrait-label {
+  font-size: 13px;
+  color: rgb(237, 108, 108);
+  margin-left: 12px;
+  margin-top: 5px;
+}
+
+.portrait-conn-mobile {
+  display: none;
+}
+
+@media (max-width: 650px) {
+  .portrait-conn-pc {
+    display: none;
+  }
+
+  .portrait-conn-mobile {
+    display: flex;
+  }
+
+  .connect {
+    width: 100px;
+    margin-top: unset;
+  }
+
+  .portrait-div-container {
+    margin: 0px;
+    background-color: white;
+  }
+
+  .site-page-portrait {
+    width: 40px;
+    height: 40px;
+  }
+
+  .site-page-nickname {
+    color: black;
+  }
+
+  .site-page-addr {
+    font-size: 13px;
+    color: gray;
+    margin-top: -5px;
+  }
+}

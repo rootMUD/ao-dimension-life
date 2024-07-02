@@ -1,0 +1,55 @@
+.follow-page {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max-width);
+  margin: auto;
+  padding-left: 30px;
+  padding-bottom: 30px;
+}
+
+.follow-page-header {
+  display: flex;
+  column-gap: 15px;
+  margin-bottom: 10px;
+}
+
+.follow-page-row {
+  display: flex;
+  column-gap: 15px;
+  cursor: pointer;
+  padding: 5px 10px;
+  color: black;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.follow-page-row:hover {
+  background-color: rgb(238, 232, 232);
+}
+
+.follow-page-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.follow-page-nickname {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.follow-page-addr {
+  font-size: 12px;
+  color: gray;
+  margin-top: -5px;
+}
+
+.follow-page-bio {
+  font-size: 15px;
+}
+
+@media (max-width: 650px) {
+  .follow-page {
+    padding: 10px;
+  }
+}

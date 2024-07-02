@@ -1,0 +1,27 @@
+.noti-page {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max-width);
+  padding-left: 30px;
+  padding-bottom: 30px;
+  row-gap: 10px;
+  line-height: 30px;
+}
+
+.noti-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.noti-page-title {
+  font-size: 23px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 650px) {
+  .noti-page {
+    padding: 10px;
+    padding-bottom: 60px;
+  }
+}
