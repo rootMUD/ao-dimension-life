@@ -159,6 +159,18 @@ Handlers.add(
   end
 )
 
+-- Add getPets Handler to get all pets
+Handlers.add(
+  "getPets",
+  Handlers.utils.hasMatchingTag("Action", "getPets"),
+  function (msg)
+    local pets = getAllPets()
+    print(pets)
+    local petsJson = json.encode(pets)
+    Handlers.utils.reply(petsJson)(msg)
+  end
+)
+
 -- Add updateLevel Handler
 Handlers.add(
   "updateLevel",
@@ -173,14 +185,34 @@ Handlers.add(
   end
 )
 
--- Add getPets Handler to get all pets
 Handlers.add(
-  "getPets",
-  Handlers.utils.hasMatchingTag("Action", "getPets"),
+  "Info",
+  Handlers.utils.hasMatchingTag("Action", "Info"),
   function (msg)
-    local pets = getAllPets()
-    print(pets)
-    local petsJson = json.encode(pets)
-    Handlers.utils.reply(petsJson)(msg)
+    info = [[
+This module handles pet management including creating, retrieving, updating, and listing pets. The core functionalities are backed by an SQLite database.
+
+1. **Database Setup**
+   - A SQLite database is used, either in-memory or persistent.
+   - Table `pets` is created to store pet details with unique constraints on the `address` field.
+
+2. **Functions**
+
+   - `query(stmt)`: Executes a prepared SQL statement and returns the result rows.
+   - `initPet(pet, timestamp)`: Adds a new pet to the database. Fields include `name`, `description`, `level`, `type`, `address`, and `lastUpdated`. If the address already exists, an error message is returned.
+   - `getPet(address)`: Retrieves pet details based on the provided address.
+   - `getAllPets()`: Retrieves details of all pets in the database.
+   - `updatePetLevel(pet, timestampNow)`: Updates the level of a pet if the last update was more than an hour ago.
+
+3. **Handlers**
+
+   - `"initPet"`: Adds a new pet to the database.
+   - `"getPet"`: Retrieves a pet's details based on its address.
+   - `"getPets"`: Retrieves details of all pets.
+   - `"updateLevel"`: Updates a pet's level based on the provided address and current timestamp.
+
+Each handler is associated with an action tag and uses utility functions to reply with appropriate messages or errors.
+      ]]
+    Handlers.utils.reply(info)(msg)
   end
 )
