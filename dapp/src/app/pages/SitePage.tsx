@@ -94,11 +94,18 @@ class SitePage extends React.Component<{}, SitePageState> {
   }
 
   async getPet(address: string) {
-    console.log("address:", address)
-    let replies = await getDataFromAO(AO_PET, "getPet", {address: address});
-    console.log("getPet:", replies);
-    if (replies && replies.length > 0) {
-      this.setState({ pet: replies[0] });
+    console.log("address which is getting pet:", address)
+    try {
+      let replies = await getDataFromAO(AO_PET, "getPet", {address: address});
+      console.log("getPet:", replies);
+      if (replies && replies.length > 0) {
+        this.setState({ pet: replies[0] });
+      } else {
+        this.setState({ pet: null });
+      }
+    } catch (error) {
+      console.error("Error fetching pet data:", error);
+      this.setState({ pet: null });
     }
   }
 
@@ -232,7 +239,7 @@ class SitePage extends React.Component<{}, SitePageState> {
             {upper}
           </ReactMarkdown>
           <center><p>The 1st Pet Game on AO which is </p></center>
-          <center><p>strongly AI powered, Community GC(Generate Content), UserGC, DeveloperGC and AIGC ฅ^•ﻌ•^ฅ.</p></center>
+          <center><p>strongly AI powered, Community GC(Generate Content), UserGC, DeveloperGC and AIGC ฅ^•ﻌ•^ฅ。</p></center>
           <center><p>首个 AO 上的宠物游戏 —— </p></center>
           <center><p>强 AI 支持, 社区创造内容, 用户创造内容, 开发者创造内容与 AI 创造内容 ฅ^•ﻌ•^ฅ。</p></center>
           <br></br>
