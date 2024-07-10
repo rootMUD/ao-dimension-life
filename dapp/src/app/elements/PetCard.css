@@ -1,0 +1,32 @@
+.pet-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px;
+    text-align: center;
+    background-color: #f9f9f9;
+  }
+  
+  .pet-card h2 {
+    margin-bottom: 8px;
+  }
+  
+  .pet-card p {
+    margin: 4px 0;
+  }
+  
+  .pet-card-state-row {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+  }
+  
+  .pet-card-state {
+    display: flex;
+    align-items: center;
+  }
+  
+  .pet-card-state-number {
+    margin-left: 8px;
+  }
+  

@@ -8,13 +8,24 @@ import {
   messageToAO,
   shortAddr,
 } from "../util/util";
-import { AO_COUNTER } from "../util/consts";
+import { AO_PET } from "../util/consts";
 import { Server } from "../../server/server";
 import Portrait from "../elements/Portrait";
 import { subscribe } from "../util/event";
 import "./SitePage.css";
 
 import { BsWallet2 } from "react-icons/bs";
+
+import PetCard from '../elements/PetCard'; // Import the PetCard component
+
+interface Pet {
+  name: string;
+  description: string;
+  level: number;
+  type: number;
+  id: number;
+  lastUpdated: number;
+}
 
 interface SitePageState {
   users: number;
@@ -25,12 +36,17 @@ interface SitePageState {
   openMenu: boolean;
   count: number;
   message?: string;
+  name: string;
+  description: string;
+  pet: Pet | null; // Allow pet to be null
 }
 
 class SitePage extends React.Component<{}, SitePageState> {
   constructor(props: {}) {
     super(props);
     this.state = {
+      name: "",
+      description: "",
       users: 0,
       posts: 0,
       replies: 0,
@@ -39,29 +55,59 @@ class SitePage extends React.Component<{}, SitePageState> {
       openMenu: false,
       count: 0,
       message: "",
+      pet: null // Initialize pet as null
     };
 
     subscribe("wallet-events", () => {
       let address = Server.service.isLoggedIn();
       this.setState({ address });
     });
+
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleFeed = this.handleFeed.bind(this); // Bind handleFeed
+  }
+
+  handleNameChange(event: { target: { value: any } }) {
+    this.setState({ name: event.target.value });
+  }
+
+  handleDescriptionChange(event: { target: { value: any } }) {
+    this.setState({ description: event.target.value });
   }
 
   componentDidMount() {
     this.start();
   }
 
-  async addCount() {
-    let response = await messageToAO(AO_COUNTER, this.state.address, "AddNew");
-    console.log("add count:", response);
+  async initPet() {
+    let response = await messageToAO(AO_PET, {name: this.state.name, description: this.state.description, address: this.state.address}, "initPet");
+    console.log("response:", response);
+    this.getPet(this.state.address);
   }
+
+  async updateLevel() {
+    let response = await messageToAO(AO_PET, {address: this.state.address}, "updateLevel");
+    console.log("response:", response);
+    this.getPet(this.state.address); // Refresh pet data after feeding
+  }
+
+  async getPet(address: string) {
+    console.log("address:", address)
+    let replies = await getDataFromAO(AO_PET, "getPet", {address: address});
+    console.log("getPet:", replies);
+    if (replies && replies.length > 0) {
+      this.setState({ pet: replies[0] });
+    }
+  }
+
   async getCount() {
-    // let response = await messageToAO(AO_COUNTER, "", 'GetCount');
-    // console.log("get count:", response);
-    let replies = await getDataFromAO(AO_COUNTER, "GetCount");
+    let replies = await getDataFromAO(AO_PET, "getCount");
     console.log("get count:", replies);
     this.setState({ count: replies }); // Update state with the count
   }
+
   async start() {
     this.getCount();
   }
@@ -89,6 +135,7 @@ class SitePage extends React.Component<{}, SitePageState> {
   async afterConnected(address: string, othent?: any) {
     Server.service.setIsLoggedIn(address);
     Server.service.setActiveAddress(address);
+    this.getPet(address);
   }
 
   handleClick = (e: { currentTarget: any }) => {
@@ -103,31 +150,45 @@ class SitePage extends React.Component<{}, SitePageState> {
       ripple.remove();
     }, 600);
 
-    this.addCount();
+    this.initPet();
     setTimeout(() => {
       this.getCount();
+      this.getPet(this.state.address);
     }, 1000); // Delay getCount by 1 second
   };
 
+  handleFeed() {
+    this.updateLevel();
+  }
+
+  isButtonDisabled() {
+    const { name, description, address } = this.state;
+    return !name || !description || !address;
+  }
+
   render() {
     let shortAddress = shortAddr(this.state.address, 4);
-    const upper = `\`\`\`
-                         _      ___                           
-                         /_\\    /___\\    __   _____ _ __ ___  ___ 
-                        //_\\\\  //  //     \\ \\ / / _ \\ '__/ __|/ _ \\
-                       /  _  \\/ \\_//       \\ V /  __/ |  \\__ \\  __/
-                        \\_/ \\_/\\___/         \\_/ \\___|_|  |___/\\___|
-                                                              
-                        
-                                       👇👇👇 Click it👇👇👇
-\`\`\``;
+    const upper = `
+    _____     __     __    __     ______     __   __     ______     __     ______     __   __    
+    /\\  __-.  /\\ \\   /\\ "-./  \\   /\\  ___\\   /\\ "-.\\ \\   /\\  ___\\   /\\ \\   /\\  __ \\   /\\ "-.\\ \\   
+    \\ \\ \\/\\ \\ \\ \\ \\  \\ \\ \\-./\\ \\  \\ \\  __\\   \\ \\ \\-.  \\  \\ \\___  \\  \\ \\ \\  \\ \\ \\/\\ \\  \\ \\ \\-.  \\  
+     \\ \\____-  \\ \\_\\  \\ \\_\\ \\ \\_\\  \\ \\_____\\  \\ \\_\\\\"\\_\\  \\/\\_____\\  \\ \\_\\  \\ \\_____\\  \\ \\_\\\\"\\_\\ 
+      \\/____/   \\/_/   \\/_/  \\/_/   \\/_____/   \\/_/ \\/_/   \\/_____/   \\/_/   \\/_____/   \\/_/ \\/_/ 
+                                                                                                  
+                                         __         __     ______   ______                        
+                                        /\\ \\       /\\ \\   /\\  ___\\ /\\  ___\\                       
+                                        \\ \\ \\____  \\ \\ \\  \\ \\  __\\ \\ \\  __\\                       
+                                         \\ \\_____\\  \\ \\_\\  \\ \\_\\    \\ \\_____\\                     
+                                          \\/_____/   \\/_/   \\/_/     \\/_____/                     
+                                                                                                  
+    `;
     const codeStyle = {
       lineHeight: "1.2", // Adjust the line height to reduce spacing
       padding: "10px", // Adjust padding as needed
       margin: "0", // Remove default margins
     };
 
-    const aoLinkUrl = `https://www.ao.link/#/entity/${AO_COUNTER}`; // Construct the URL dynamically
+    const aoLinkUrl = `https://www.ao.link/#/entity/${AO_PET}`; // Construct the URL dynamically
 
     return (
       <div className="app-container">
@@ -170,15 +231,66 @@ class SitePage extends React.Component<{}, SitePageState> {
           >
             {upper}
           </ReactMarkdown>
+          <center><p>The 1st Pet Game on AO which is </p></center>
+          <center><p>strongly AI powered, Community GC(Generate Content), UserGC, DeveloperGC and AIGC ฅ^•ﻌ•^ฅ.</p></center>
+          <center><p>首个 AO 上的宠物游戏 —— </p></center>
+          <center><p>强 AI 支持, 社区创造内容, 用户创造内容, 开发者创造内容与 AI 创造内容 ฅ^•ﻌ•^ฅ。</p></center>
+          <br></br>
+          <center>
+            <p>Pet supplied totally:</p>
+            <p>
+              <b>&lt;{this.state.count}&gt;</b>
+            </p>
+          </center>
+          <br></br>
+          <center>
+            <div>
+              <label>
+                Name:&nbsp;&nbsp;
+                <input
+                  type="text"
+                  value={this.state.name}
+                  onChange={this.handleNameChange}
+                />
+              </label>
+            </div>
+            <br></br>
+            <div>
+              <label>
+                Description:&nbsp;&nbsp;
+                <input
+                  type="text"
+                  value={this.state.description}
+                  onChange={this.handleDescriptionChange}
+                />
+              </label>
+            </div>
+          </center>
           <br></br>
           <div className="button-container">
-            <button onClick={this.handleClick}>+ 1</button>
-            <p>
-              {" "}
-              ={">"} {this.state.count}
-            </p>
+            <button 
+              onClick={this.handleClick} 
+              disabled={this.isButtonDisabled()} 
+              style={{
+                backgroundColor: this.isButtonDisabled() ? '#d3d3d3' : '',
+                cursor: this.isButtonDisabled() ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Get My Pet (Free Now!)
+            </button>
           </div>
           <br></br>
+          {this.state.pet && ( // Conditionally render PetCard if pet is not null
+            <PetCard
+              id={this.state.pet.id}
+              name={this.state.pet.name}
+              description={this.state.pet.description}
+              level={this.state.pet.level}
+              type={this.state.pet.type}
+              lastUpdated={this.state.pet.lastUpdated}
+              onFeed={this.handleFeed} // Pass handleFeed as prop
+            />
+          )}
           <br></br>
           <div className="button-container">
             <a
@@ -187,6 +299,14 @@ class SitePage extends React.Component<{}, SitePageState> {
               rel="noreferrer"
             >
               <button className="white-button">view the Author Twitter</button>
+            </a>
+            <br></br>
+            <a
+              href="https://t.me/rootmud"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <button className="white-button">telegram group</button>
             </a>
             <br></br>
             <a
@@ -199,14 +319,13 @@ class SitePage extends React.Component<{}, SitePageState> {
               </button>
             </a>
           </div>
+          <br></br>
         </div>
-
+        
         {/* FOR MOBILE */}
         <div className="site-page-header-mobile">
-          <NavLink to="/">
-            <img className="app-logo" src="./logo.png" />
-          </NavLink>
           <Portrait />
+          <p>mobile version is not supportted yet.</p>
         </div>
       </div>
     );

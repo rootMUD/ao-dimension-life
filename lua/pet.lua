@@ -12,6 +12,7 @@ DB:exec [[
     level INT,
     type INT,
     address TEXT UNIQUE,
+    data TEXT,
     lastUpdated INT
   );
 ]]
@@ -26,8 +27,13 @@ local function query(stmt)
   return rows
 end
 
--- Function to add a new pet
-local function initPet(pet, timestamp)
+local function initPet(data, timestamp)
+  -- Decode the JSON data
+  local dataJson = json.decode(data)
+  local name = dataJson.name
+  local description = dataJson.description
+  local address = dataJson.address
+  -- Prepare the SQL statement
   local stmt = DB:prepare [[
     INSERT INTO pets (name, description, level, type, address, lastUpdated)
     VALUES (:name, :description, :level, :type, :address, :lastUpdated);
@@ -37,30 +43,36 @@ local function initPet(pet, timestamp)
     error("Failed to prepare SQL statement: " .. DB:errmsg())
   end
 
+  -- Bind values to the statement
   local randomType = math.random(0, 1000)
-
   stmt:bind_names({
-    name = pet.Name,
-    description = pet.Description,
+    name = name,
+    description = description,
     level = 0,
     type = randomType,
-    address = pet.Address,
+    address = address,
     lastUpdated = timestamp
   })
 
+  -- Execute the statement
   local result = stmt:step()
   if result ~= sqlite3.DONE then
     print("Error: Address already exists")
-    Handlers.utils.reply("Error: Address already exists")(pet)
+    Handlers.utils.reply("Error: Address already exists")
   else
     print('Pet Added!')
-    Handlers.utils.reply("Pet Added!")(pet)
+    Handlers.utils.reply("Pet Added!")
   end
+
+  -- Reset and finalize the statement
   stmt:reset()
+  stmt:finalize()
 end
 
 -- Function to get a pet by address
-local function getPet(address)
+local function getPet(data)
+  local dataJson = json.decode(data)
+  local address = dataJson.address
   local stmt = DB:prepare [[
     SELECT * FROM pets WHERE address = :address;
   ]]
@@ -107,8 +119,9 @@ local function updatePetLevel(pet, timestampNow)
   if currentPet then
     print(timestampNow)
     print(currentPet.lastUpdated)
-    if timestampNow - currentPet.lastUpdated < 3600 then 
-      -- 3600 seconds = 1 hour
+    -- TODO: milliseconds is the timestamp here.
+    if timestampNow - currentPet.lastUpdated < 3600000 then 
+      -- 3600,000 mileseconds = 1 hour
       print('Not now')
       Handlers.utils.reply("Not now")(pet)
       return
@@ -138,12 +151,55 @@ local function updatePetLevel(pet, timestampNow)
   end
 end
 
+-- Function to update the data field of a pet by address
+
+-- Function to update the data field of a pet by address
+local function updatePetData(pet, data)
+  local currentPetStmt = DB:prepare [[
+    SELECT * FROM pets WHERE address = :address;
+  ]]
+
+  if not currentPetStmt then
+    error("Failed to prepare SQL statement: " .. DB:errmsg())
+  end
+
+  currentPetStmt:bind_names({ address = pet.address })
+
+  local currentPet = query(currentPetStmt)[1]
+
+  if currentPet then
+    local dataJson = json.decode(data)
+    local newData = dataJson.data
+
+    local stmt = DB:prepare [[
+      UPDATE pets SET data = :data, lastUpdated = :lastUpdated WHERE address = :address;
+    ]]
+
+    if not stmt then
+      error("Failed to prepare SQL statement: " .. DB:errmsg())
+    end
+
+    stmt:bind_names({
+      address = pet.address,
+      data = newData
+    })
+
+    stmt:step()
+    stmt:reset()
+    print('Pet Data Updated!')
+    Handlers.utils.reply("Pet Data Updated!")(pet)
+  else
+    print('Pet not found.')
+    Handlers.utils.reply("Pet not found.")(pet)
+  end
+end
+
 -- Add initPet Handler
 Handlers.add(
   "initPet",
   Handlers.utils.hasMatchingTag("Action", "initPet"),
   function (msg)
-    initPet(msg, msg.Timestamp)
+    initPet(msg.Data, msg.Timestamp)
   end
 )
 
@@ -152,7 +208,7 @@ Handlers.add(
   "getPet",
   Handlers.utils.hasMatchingTag("Action", "getPet"),
   function (msg)
-    local pet = getPet(msg.Address)
+    local pet = getPet(msg.Data)
     local petsJson = json.encode(pet)
     print(pet)
     Handlers.utils.reply(petsJson)(msg)
@@ -176,7 +232,7 @@ Handlers.add(
   "updateLevel",
   Handlers.utils.hasMatchingTag("Action", "updateLevel"),
   function (msg)
-    local pet = getPet(msg.Address)[1]
+    local pet = getPet(msg.Data)[1]
     if pet then
       updatePetLevel(pet, msg.Timestamp)
     else
@@ -184,6 +240,36 @@ Handlers.add(
     end
   end
 )
+
+-- Add getCount Handler to get the count of all pets
+Handlers.add(
+  "getCount",
+  Handlers.utils.hasMatchingTag("Action", "getCount"),
+  function (msg)
+    local stmt = DB:prepare [[
+      SELECT COUNT(*) AS count FROM pets;
+    ]]
+  
+    if not stmt then
+      error("Failed to prepare SQL statement: " .. DB:errmsg())
+    end
+  
+    local rows = query(stmt)
+    print(rows[1].count)
+    Handlers.utils.reply(tostring(rows[1].count))(msg)
+  end
+)
+
+-- Add updateData Handler to update the data field of a pet
+-- it should not add to the entry handler because it need the verification of the owner.
+-- Handlers.add(
+--   "updateData",
+--   Handlers.utils.hasMatchingTag("Action", "updateData"),
+--   function (msg)
+--     local pet = getPet(msg.Data)[1]
+--     updatePetData(pet, msg.Data)
+--   end
+-- )
 
 Handlers.add(
   "Info",

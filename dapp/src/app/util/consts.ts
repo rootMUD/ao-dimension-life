@@ -5,7 +5,7 @@ export const regexPatterns = {
   youtubeRegex: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/
 };
 
-export const AO_COUNTER = "Rijbx6FduUMdCZM0tJ4PPxXljUNy1m0u_kmMIFGFM5c";
+export const AO_PET = "21NFaKbldDkr6xr7h38DjnYhkShSu0FHTdxiSz9zM0k";
 export const AO_TWITTER = "8s1ZpAx_NueKS4N2ZOMYWCkl5qVcGkgnBFSnqSVX9Fo";
 export const AO_STORY = "AAwa2zqVLSMvxOPMjhUVtPHS_SN1ObbsaY27X9OPCbw";
 export const STORY_INCOME = "LsNy8F1GSkGvE0IJ6g1RFpHHjKE6tmtXUT91WIv3PMQ";
