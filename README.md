@@ -1,28 +1,19 @@
-# AO-Counter | AO Beginner's Guide 0x01
+# AO-Dimension-life
 
-This article demonstrates the first example of AO, an AO-based counter. Every time the button is clicked, the counter increments by 1, and the clicker's address is recorded in the list in the AO Process.
+<img width="575" alt="image" src="https://github.com/rootMUD/ao-dimension-life/assets/12784118/4bf646e2-d87e-4ef9-8454-2ebc7363d1fd">
 
-![image-20240629204106662](https://p.ipic.vip/7w67ro.jpg)
 
 > References:
 >
 >  >https://github.com/iamgamelover/ao-twitter
 
-Repo:
+Launch App:
 
- > https://github.com/rootMUD/ao-counter
+> [https://](https://dimension-life.rootmud.xyz)
 
-Vercel version:
+Homepage:
 
-> https://ao-counter.vercel.app/
-
-Arweave version:
-
-> https://arweave.net/bleZF-gxe_vv0RYMNhHABsvq6wvhvmBBnQ5lfzwJJKQ
-
-Process on `ao.link`:
-
->https://www.ao.link/#/entity/Rijbx6FduUMdCZM0tJ4PPxXljUNy1m0u_kmMIFGFM5c
+> https://home.dimension-life.rootmud.xyz
 
 ## 0x01 What is AO?
 
