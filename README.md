@@ -23,7 +23,7 @@ strongly AI powered, Community GC(Generate Content), UserGC, DeveloperGC and AIG
 
 > References:
 >
->  >https://github.com/iamgamelover/ao-twitter
+> https://github.com/iamgamelover/ao-twitter
 
 Launch App:
 
