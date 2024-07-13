@@ -27,6 +27,36 @@ local function query(stmt)
   return rows
 end
 
+
+-- Function to check if a pet name is unique
+local function checkNameUnique(msg)
+    local dataJson = json.decode(msg.Data)
+    local name = dataJson.name
+
+    -- Check if the name already exists
+    local stmt = DB:prepare [[
+      SELECT * FROM pets WHERE name = :name;
+    ]]
+
+    if not stmt then
+      error("Failed to prepare SQL statement: " .. DB:errmsg())
+    end
+
+    stmt:bind_names({ name = name })
+
+    local existingPet = query(stmt)[1]
+
+    if existingPet then
+      Handlers.utils.reply("Error: Name already exists")(msg)
+    else
+      Handlers.utils.reply("Name is unique")(msg)
+    end
+
+    stmt:reset()
+    stmt:finalize()
+end
+
+-- TODO: i think the reply has some prob so it should fix the reply in the future.
 local function initPet(data, timestamp)
   -- Decode the JSON data
   local dataJson = json.decode(data)
@@ -324,6 +354,15 @@ Handlers.add(
   end
 )
 
+
+-- Add checkNameUnique Handler
+Handlers.add(
+  "checkNameUnique",
+  Handlers.utils.hasMatchingTag("Action", "checkNameUnique"),
+  function (msg)
+    checkNameUnique(msg)
+  end
+)
 -- Add updateData Handler to update the data field of a pet
 -- it should not add to the entry handler because it need the verification of the owner.
 -- Handlers.add(
