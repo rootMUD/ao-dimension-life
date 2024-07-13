@@ -16,7 +16,7 @@ import "./SitePage.css";
 
 import { BsWallet2 } from "react-icons/bs";
 
-import PetCard from '../elements/PetCard'; // Import the PetCard component
+import PetCard from "../elements/PetCard"; // Import the PetCard component
 
 interface Pet {
   name: string;
@@ -39,6 +39,7 @@ interface SitePageState {
   name: string;
   description: string;
   pet: Pet | null; // Allow pet to be null
+  showMessageBox: boolean; // New state variable for message box
 }
 
 class SitePage extends React.Component<{}, SitePageState> {
@@ -55,7 +56,8 @@ class SitePage extends React.Component<{}, SitePageState> {
       openMenu: false,
       count: 0,
       message: "",
-      pet: null // Initialize pet as null
+      pet: null, // Initialize pet as null
+      showMessageBox: false, // Initialize showMessageBox as false
     };
 
     subscribe("wallet-events", () => {
@@ -67,6 +69,7 @@ class SitePage extends React.Component<{}, SitePageState> {
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleFeed = this.handleFeed.bind(this); // Bind handleFeed
+    this.closeMessageBox = this.closeMessageBox.bind(this); // Bind closeMessageBox
   }
 
   handleNameChange(event: { target: { value: any } }) {
@@ -82,21 +85,33 @@ class SitePage extends React.Component<{}, SitePageState> {
   }
 
   async initPet() {
-    let response = await messageToAO(AO_PET, {name: this.state.name, description: this.state.description, address: this.state.address}, "initPet");
+    let response = await messageToAO(
+      AO_PET,
+      {
+        name: this.state.name,
+        description: this.state.description,
+        address: this.state.address,
+      },
+      "initPet"
+    );
     console.log("response:", response);
     this.getPet(this.state.address);
   }
 
   async updateLevel() {
-    let response = await messageToAO(AO_PET, {address: this.state.address}, "updateLevel");
+    let response = await messageToAO(
+      AO_PET,
+      { address: this.state.address },
+      "updateLevel"
+    );
     console.log("response:", response);
     this.getPet(this.state.address); // Refresh pet data after feeding
   }
 
   async getPet(address: string) {
-    console.log("address which is getting pet:", address)
+    console.log("address which is getting pet:", address);
     try {
-      let replies = await getDataFromAO(AO_PET, "getPet", {address: address});
+      let replies = await getDataFromAO(AO_PET, "getPet", { address: address });
       console.log("getPet:", replies);
       if (replies && replies.length > 0) {
         this.setState({ pet: replies[0] });
@@ -107,6 +122,14 @@ class SitePage extends React.Component<{}, SitePageState> {
       console.error("Error fetching pet data:", error);
       this.setState({ pet: null });
     }
+  }
+
+  async checkNameUnique(name: string) {
+    let replies = await getDataFromAO(AO_PET, "checkNameUnique", {
+      name: name,
+    });
+    console.log("checkName:", replies);
+    return replies;
   }
 
   async getCount() {
@@ -145,27 +168,29 @@ class SitePage extends React.Component<{}, SitePageState> {
     this.getPet(address);
   }
 
-  handleClick = (e: { currentTarget: any }) => {
-    console.log("Button clicked!");
-    const button = e.currentTarget;
-    const ripple = document.createElement("span");
-    ripple.classList.add("ripple");
-    button.appendChild(ripple);
-
-    // Remove the span after the animation is done
-    setTimeout(() => {
-      ripple.remove();
-    }, 600);
-
-    this.initPet();
-    setTimeout(() => {
-      this.getCount();
-      this.getPet(this.state.address);
-    }, 1000); // Delay getCount by 1 second
-  };
+  async handleClick(e: { currentTarget: any }) {
+    // Check if the name is unique
+    const replied = await this.checkNameUnique(this.state.name);
+    if (replied.unique === false) {
+      console.log("Name has been used！名字已经被占用辣！");
+      alert("Name has been used！名字已经被占用辣！");
+      this.setState({ showMessageBox: true }); // Show message box
+    } else {
+      console.log("Button clicked!");
+      this.initPet();
+      setTimeout(() => {
+        this.getCount();
+        this.getPet(this.state.address);
+      }, 1000); // Delay getCount by 1 second
+    }
+  }
 
   handleFeed() {
     this.updateLevel();
+  }
+
+  closeMessageBox() {
+    this.setState({ showMessageBox: false }); // Close message box
   }
 
   isButtonDisabled() {
@@ -238,10 +263,24 @@ class SitePage extends React.Component<{}, SitePageState> {
           >
             {upper}
           </ReactMarkdown>
-          <center><p>The 1st Pet Game on AO which is </p></center>
-          <center><p>strongly AI powered, Community GC(Generate Content), UserGC, DeveloperGC and AIGC ฅ^•ﻌ•^ฅ。</p></center>
-          <center><p>首个 AO 上的宠物游戏 —— </p></center>
-          <center><p>强 AI 支持, 社区创造内容, 用户创造内容, 开发者创造内容与 AI 创造内容 ฅ^•ﻌ•^ฅ。</p></center>
+          <center>
+            <p>The 1st Pet Game on AO which is </p>
+          </center>
+          <center>
+            <p>
+              strongly AI powered, Community GC(Generate Content), UserGC,
+              DeveloperGC and AIGC ฅ^•ﻌ•^ฅ。
+            </p>
+          </center>
+          <center>
+            <p>首个 AO 上的宠物游戏 —— </p>
+          </center>
+          <center>
+            <p>
+              强 AI 支持, 社区创造内容, 用户创造内容, 开发者创造内容与 AI
+              创造内容 ฅ^•ﻌ•^ฅ。
+            </p>
+          </center>
           <br></br>
           <center>
             <p>Pet supplied totally:</p>
@@ -275,12 +314,12 @@ class SitePage extends React.Component<{}, SitePageState> {
           </center>
           <br></br>
           <div className="button-container">
-            <button 
-              onClick={this.handleClick} 
-              disabled={this.isButtonDisabled()} 
+            <button
+              onClick={this.handleClick}
+              disabled={this.isButtonDisabled()}
               style={{
-                backgroundColor: this.isButtonDisabled() ? '#d3d3d3' : '',
-                cursor: this.isButtonDisabled() ? 'not-allowed' : 'pointer'
+                backgroundColor: this.isButtonDisabled() ? "#d3d3d3" : "",
+                cursor: this.isButtonDisabled() ? "not-allowed" : "pointer",
               }}
             >
               Get My Pet (Free Now!)
@@ -308,11 +347,7 @@ class SitePage extends React.Component<{}, SitePageState> {
               <button className="white-button">view the Author Twitter</button>
             </a>
             <br></br>
-            <a
-              href="https://t.me/rootmud"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href="https://t.me/rootmud" target="_blank" rel="noreferrer">
               <button className="white-button">telegram group</button>
             </a>
             <br></br>
@@ -327,8 +362,14 @@ class SitePage extends React.Component<{}, SitePageState> {
             </a>
           </div>
           <br></br>
+          {/* {this.state.showMessageBox && ( // Conditionally render message box
+            <div className="message-box">
+              <p>Name has been used! Please choose another name.</p>
+              <button onClick={this.closeMessageBox}>Close</button>
+            </div>
+          )} */}
         </div>
-        
+
         {/* FOR MOBILE */}
         <div className="site-page-header-mobile">
           <Portrait />
