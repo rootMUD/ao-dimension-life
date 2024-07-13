@@ -33,6 +33,26 @@ local function initPet(data, timestamp)
   local name = dataJson.name
   local description = dataJson.description
   local address = dataJson.address
+
+  -- Check if the name already exists
+  local checkNameStmt = DB:prepare [[
+    SELECT * FROM pets WHERE name = :name;
+  ]]
+
+  if not checkNameStmt then
+    error("Failed to prepare SQL statement: " .. DB:errmsg())
+  end
+
+  checkNameStmt:bind_names({ name = name })
+
+  local existingPet = query(checkNameStmt)[1]
+
+  if existingPet then
+    print("Error: Name already exists")
+    Handlers.utils.reply("Error: Name already exists")
+    return
+  end
+
   -- Prepare the SQL statement
   local stmt = DB:prepare [[
     INSERT INTO pets (name, description, level, type, address, lastUpdated)
@@ -64,10 +84,54 @@ local function initPet(data, timestamp)
     Handlers.utils.reply("Pet Added!")
   end
 
-  -- Reset and finalize the statement
+  -- Reset and finalize the statements
+  checkNameStmt:reset()
+  checkNameStmt:finalize()
   stmt:reset()
   stmt:finalize()
 end
+
+-- local function initPet(data, timestamp)
+--   -- Decode the JSON data
+--   local dataJson = json.decode(data)
+--   local name = dataJson.name
+--   local description = dataJson.description
+--   local address = dataJson.address
+--   -- Prepare the SQL statement
+--   local stmt = DB:prepare [[
+--     INSERT INTO pets (name, description, level, type, address, lastUpdated)
+--     VALUES (:name, :description, :level, :type, :address, :lastUpdated);
+--   ]]
+
+--   if not stmt then
+--     error("Failed to prepare SQL statement: " .. DB:errmsg())
+--   end
+
+--   -- Bind values to the statement
+--   local randomType = math.random(0, 1000)
+--   stmt:bind_names({
+--     name = name,
+--     description = description,
+--     level = 0,
+--     type = randomType,
+--     address = address,
+--     lastUpdated = timestamp
+--   })
+
+--   -- Execute the statement
+--   local result = stmt:step()
+--   if result ~= sqlite3.DONE then
+--     print("Error: Address already exists")
+--     Handlers.utils.reply("Error: Address already exists")
+--   else
+--     print('Pet Added!')
+--     Handlers.utils.reply("Pet Added!")
+--   end
+
+--   -- Reset and finalize the statement
+--   stmt:reset()
+--   stmt:finalize()
+-- end
 
 -- Function to get a pet by address
 local function getPet(data)
