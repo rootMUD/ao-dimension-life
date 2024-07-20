@@ -1,12 +1,15 @@
+
 .navbar-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-around; /* Adjust this based on your layout preferences */
+  align-items: center;
+  padding: 10px;
 }
 
-.navbar-button {
-  display: flex;
-  align-items: center;
-  position: relative;
+.navbar-container .navbar-button {
+  margin: 0 10px; /* Adjust the margin as needed */
+  text-align: center;
 }
 
 .navbar-button-icon {

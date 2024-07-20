@@ -16,8 +16,6 @@ import "./SitePage.css";
 
 import { BsWallet2 } from "react-icons/bs";
 
-import PetCard from "../elements/PetCard"; // Import the PetCard component
-
 import NavBar from '../elements/NavBar'; 
 
 
@@ -30,7 +28,7 @@ interface Pet {
   lastUpdated: number;
 }
 
-interface SitePageState {
+interface RankPageState {
   users: number;
   posts: number;
   replies: number;
@@ -45,7 +43,7 @@ interface SitePageState {
   showMessageBox: boolean; // New state variable for message box
 }
 
-class SitePage extends React.Component<{}, SitePageState> {
+class RankPage extends React.Component<{}, RankPageState> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -248,131 +246,7 @@ class SitePage extends React.Component<{}, SitePageState> {
             </div>
           )}
           <NavBar />
-          <ReactMarkdown
-            components={{
-              code({ node, className, children, ...props }) {
-                return (
-                  <code style={codeStyle} {...props}>
-                    {children}
-                  </code>
-                );
-              },
-              pre({ node, className, children, ...props }) {
-                return (
-                  <pre style={codeStyle} {...props}>
-                    {children}
-                  </pre>
-                );
-              },
-            }}
-          >
-            {upper}
-          </ReactMarkdown>
-          <center>
-            <p>The 1st Pet Game on AO which is </p>
-          </center>
-          <center>
-            <p>
-              strongly AI powered, Community GC(Generate Content), UserGC,
-              DeveloperGC and AIGC ฅ^•ﻌ•^ฅ。
-            </p>
-          </center>
-          <center>
-            <p>首个 AO 上的宠物游戏 —— </p>
-          </center>
-          <center>
-            <p>
-              强 AI 支持, 社区创造内容, 用户创造内容, 开发者创造内容与 AI
-              创造内容 ฅ^•ﻌ•^ฅ。
-            </p>
-          </center>
-          <br></br>
-          <center>
-            <p>Pet supplied totally:</p>
-            <p>
-              <b>&lt;{this.state.count}&gt;</b>
-            </p>
-          </center>
-          <br></br>
-          <center>
-            <div>
-              <label>
-                Name:&nbsp;&nbsp;
-                <input
-                  type="text"
-                  value={this.state.name}
-                  onChange={this.handleNameChange}
-                />
-              </label>
-            </div>
-            <br></br>
-            <div>
-              <label>
-                Description:&nbsp;&nbsp;
-                <input
-                  type="text"
-                  value={this.state.description}
-                  onChange={this.handleDescriptionChange}
-                />
-              </label>
-            </div>
-          </center>
-          <br></br>
-          <div className="button-container">
-            <button
-              onClick={this.handleClick}
-              disabled={this.isButtonDisabled()}
-              style={{
-                backgroundColor: this.isButtonDisabled() ? "#d3d3d3" : "",
-                cursor: this.isButtonDisabled() ? "not-allowed" : "pointer",
-              }}
-            >
-              Get My Pet (Free Now!)
-            </button>
-          </div>
-          <br></br>
-          {this.state.pet && ( // Conditionally render PetCard if pet is not null
-            <PetCard
-              id={this.state.pet.id}
-              name={this.state.pet.name}
-              description={this.state.pet.description}
-              level={this.state.pet.level}
-              type={this.state.pet.type}
-              lastUpdated={this.state.pet.lastUpdated}
-              onFeed={this.handleFeed} // Pass handleFeed as prop
-            />
-          )}
-          <br></br>
-          <div className="button-container">
-            <a
-              href="https://x.com/0xleeduckgo"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <button className="white-button">view the Author Twitter</button>
-            </a>
-            <br></br>
-            <a href="https://t.me/rootmud" target="_blank" rel="noreferrer">
-              <button className="white-button">telegram group</button>
-            </a>
-            <br></br>
-            <a
-              href={aoLinkUrl} // Use the dynamic URL here
-              target="_blank"
-              rel="noreferrer"
-            >
-              <button className="white-button">
-                check the description on ao.link
-              </button>
-            </a>
-          </div>
-          <br></br>
-          {/* {this.state.showMessageBox && ( // Conditionally render message box
-            <div className="message-box">
-              <p>Name has been used! Please choose another name.</p>
-              <button onClick={this.closeMessageBox}>Close</button>
-            </div>
-          )} */}
+          <p>Here is the rank page.</p>
         </div>
 
         {/* FOR MOBILE */}
@@ -385,4 +259,4 @@ class SitePage extends React.Component<{}, SitePageState> {
   }
 }
 
-export default SitePage;
+export default RankPage;

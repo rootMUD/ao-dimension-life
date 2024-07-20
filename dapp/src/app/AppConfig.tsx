@@ -4,55 +4,28 @@ export class AppConfig {
 
   public static menu = [
     {
-      text: 'Home',
-      icon: 'home',
+      text: 'Index',
       to: '/',
-      loggedIn: false
-    },
-    {
-      text: 'Story',
-      icon: 'story',
-      to: '/story',
       beta: false,
       loggedIn: false
     },
     {
-      text: 'Games',
-      icon: 'games',
-      to: '/games',
+      text: 'Rank',
+      to: '/rank',
+      beta: false,
       loggedIn: false
-    },
+    }, 
     {
-      text: 'TokenEco',
-      icon: 'token',
-      to: '/token',
-      beta: true,
-      loggedIn: true
-    },
+      text: 'WhitePaper',
+      to: 'https://bodhi.wtf/todo.',
+      beta: false,
+      loggedIn: false
+    }, 
     {
-      text: 'Chatroom',
-      icon: 'chatroom',
-      to: '/chat',
-      loggedIn: true
-    },
-    {
-      text: 'Notifications',
-      icon: 'notifications',
-      to: '/notifications',
-      new: true,
-      loggedIn: true
-    },
-    {
-      text: 'Bookmarks',
-      icon: 'bookmarks',
-      to: '/bookmarks',
-      loggedIn: true
-    },
-    {
-      text: 'Profile',
-      icon: 'profile',
-      to: '/profile',
-      loggedIn: true
-    },
+      text: 'Buy Early Shares',
+      to: 'https://bodhi.wtf/space/5/15192',
+      beta: false,
+      loggedIn: false
+    }
   ];
 }
