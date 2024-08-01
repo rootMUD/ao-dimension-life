@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "arweave": "^1.15.1"
+  }
+}

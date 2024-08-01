@@ -1,0 +1,10 @@
+{
+  "deploy": {
+    "project": "e5f3a31c-0825-49d5-b208-7058a1a87c02",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "dimension_life.tsx"
+  }
+}

@@ -4,11 +4,11 @@
   flex-direction: row;
   justify-content: space-around; /* Adjust this based on your layout preferences */
   align-items: center;
-  padding: 10px;
+  padding: 5px;
 }
 
 .navbar-container .navbar-button {
-  margin: 0 10px; /* Adjust the margin as needed */
+  margin: 0 5px; /* Adjust the margin as needed */
   text-align: center;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .navbar-text {
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 @media (max-width: 850px) {

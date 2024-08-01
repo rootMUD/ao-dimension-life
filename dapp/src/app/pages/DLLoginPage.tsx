@@ -1,21 +1,22 @@
 import React from "react";
 import {
   getWalletAddress,
+  getWalletPublicKey,
   getDataFromAO,
   connectWallet,
   messageToAO,
   shortAddr,
+  signMessage,
 } from "../util/util";
 import { AO_PET } from "../util/consts";
 import { Server } from "../../server/server";
 import Portrait from "../elements/Portrait";
 import { subscribe } from "../util/event";
-import "./RankPage.css";
+import "./DLLoginPage.css";
 
 import { BsWallet2 } from "react-icons/bs";
 
-import NavBar from '../elements/NavBar'; 
-
+import NavBar from "../elements/NavBar";
 
 interface Pet {
   name: string;
@@ -26,7 +27,8 @@ interface Pet {
   lastUpdated: number;
 }
 
-interface RankPageState {
+interface DLLoginPageState {
+  publicKey: string;
   top: Array<Pet>;
   users: number;
   posts: number;
@@ -35,17 +37,19 @@ interface RankPageState {
   address: string;
   openMenu: boolean;
   count: number;
-  message?: string;
+  message: string;
   name: string;
   description: string;
   pet: Pet | null; // Allow pet to be null
-  showMessageBox: boolean; // New state variable for message box
+  showMessageBox: boolean; // New state variable for message box,
+  token: string;
 }
 
-class RankPage extends React.Component<{}, RankPageState> {
+class DLLoginPage extends React.Component<{}, DLLoginPageState> {
   constructor(props: {}) {
     super(props);
     this.state = {
+      publicKey: "",
       top: [],
       name: "",
       description: "",
@@ -57,6 +61,7 @@ class RankPage extends React.Component<{}, RankPageState> {
       openMenu: false,
       count: 0,
       message: "",
+      token: "",
       pet: null, // Initialize pet as null
       showMessageBox: false, // Initialize showMessageBox as false
     };
@@ -85,6 +90,20 @@ class RankPage extends React.Component<{}, RankPageState> {
     this.start();
   }
 
+  // Fetch message from Deno server
+  async fetchMessage() {
+    try {
+      const response = await fetch("https://d-life.deno.dev/msg");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      this.setState({ message: data.message });
+    } catch (error) {
+      console.error("Failed to fetch message:", error);
+    }
+  }
+
   async initPet() {
     let response = await messageToAO(
       AO_PET,
@@ -107,21 +126,6 @@ class RankPage extends React.Component<{}, RankPageState> {
     );
     console.log("response:", response);
     this.getPet(this.state.address); // Refresh pet data after feeding
-  }
-
-  async getTopPets(num: number) {
-    try {
-      let replies = await getDataFromAO(AO_PET, "getTopPets", { number: num });
-      console.log("getTop:", replies);
-      if (replies && replies.length > 0) {
-        this.setState({ top: replies });
-      } else {
-        this.setState({ top: null });
-      }
-    } catch (error) {
-      console.error("Error fetching pet data:", error);
-      this.setState({ top: null });
-    }
   }
 
   async getPet(address: string) {
@@ -155,7 +159,7 @@ class RankPage extends React.Component<{}, RankPageState> {
   }
 
   async start() {
-    this.getTopPets(100);
+    this.fetchMessage();
   }
 
   async disconnectWallet() {
@@ -172,16 +176,19 @@ class RankPage extends React.Component<{}, RankPageState> {
     let connected = await connectWallet();
     if (connected) {
       let address = await getWalletAddress();
+
       this.setState({ address: address });
       console.log("user address:", address);
       this.afterConnected(address);
+      let publicKey = await getWalletPublicKey();
+      this.setState({ publicKey: publicKey });
     }
   }
 
   async afterConnected(address: string, othent?: any) {
     Server.service.setIsLoggedIn(address);
     Server.service.setActiveAddress(address);
-    this.getPet(address);
+    // this.getPet(address);
   }
 
   async handleClick(e: { currentTarget: any }) {
@@ -214,6 +221,47 @@ class RankPage extends React.Component<{}, RankPageState> {
     return !name || !description || !address;
   }
 
+  getToken = async () => {
+    // Simulation of message signing
+    const sig = await signMessage(this.state.message);
+    console.log("signature:", sig);
+    // Construct the request payload
+    console.log("n:", this.state.publicKey);
+    console.log("sig:", sig);
+    const payload = JSON.stringify({
+      sig: sig,
+      n: this.state.publicKey, // publicKey identifier 'n' must match the server's expected key
+      addr: this.state.address
+    });
+
+    // Send the signature, public key, and message to your Deno server
+    const response = await fetch('https://d-life.deno.dev/gen_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: payload
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+    console.log("Sig Verification:", data.verification);
+    this.setState({ token: data.token});
+
+
+  };
+
+  // Copy signed message to clipboard
+  copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(this.state.token)
+      .then(() => alert("Copied to clipboard!"))
+      .catch((err) => console.error("Failed to copy text: ", err));
+  };
+
   render() {
     let shortAddress = shortAddr(this.state.address, 4);
 
@@ -242,37 +290,43 @@ class RankPage extends React.Component<{}, RankPageState> {
             )}
             <NavBar />
           </div>
-          <h2><center>Ranking</center></h2>
-          <table className="top-pets-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                {/* <th>Description</th> */}
-                <th>Level</th>
-                {/* <th>Type</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.top.map((pet) => (
-                <tr key={pet.id}>
-                  <td>{pet.name}</td>
-                  {/* <td>{pet.description}</td> */}
-                  <td>{pet.level}</td>
-                  {/* <td>{pet.type}</td> */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <center>
+            <h2>Dimension Life Login</h2>
+            <p>
+              using dimension Life as a <b>PASSPORT</b>.
+            </p>
+            <div>
+              <br></br>
+              <p>
+                <b>Message for sign:</b> {this.state.message}
+              </p>
+              <br></br>
+              <button onClick={this.getToken}>Sign & Generate Token</button>
+              <br></br>
+              <br></br>
+              <input
+                value={this.state.token}
+                onChange={() => {}}
+                onClick={this.copyToClipboard}
+                readOnly
+              />
+              <br></br>
+              <br></br>
+              <hr></hr>
+              <br></br>
+              <a href="https://arweave.noncegeeek.com" target="_blank" rel="noreferrer"> use token in GPT Bot for interact!</a>
+            </div>
+          </center>
         </div>
-    
+
         {/* FOR MOBILE */}
         <div className="site-page-header-mobile">
           <Portrait />
           <p>mobile version is not supported yet.</p>
         </div>
       </div>
-    );    
+    );
   }
 }
 
-export default RankPage;
+export default DLLoginPage;

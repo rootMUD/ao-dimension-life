@@ -1,3 +1,5 @@
+-- ProcessId: cO4thcoxO57AflN5hfXjce0_DydbMJclTU9kC3S75cg
+
 local json = require("json")
 local sqlite3 = require("lsqlite3")
 
@@ -27,33 +29,52 @@ local function query(stmt)
   return rows
 end
 
+-- Function to get top N pets by level
+local function getTopNPets(n)
+  local stmt = DB:prepare [[
+    SELECT * FROM pets ORDER BY level DESC LIMIT :limit;
+  ]]
+
+  if not stmt then
+    error("Failed to prepare SQL statement: " .. DB:errmsg())
+  end
+
+  stmt:bind_names({ limit = n })
+
+  local rows = query(stmt)
+  return rows
+end
+
 
 -- Function to check if a pet name is unique
 local function checkNameUnique(msg)
-    local dataJson = json.decode(msg.Data)
-    local name = dataJson.name
+  local dataJson = json.decode(msg.Data)
+  local name = dataJson.name
 
-    -- Check if the name already exists
-    local stmt = DB:prepare [[
-      SELECT * FROM pets WHERE name = :name;
-    ]]
+  -- Check if the name already exists
+  local stmt = DB:prepare [[
+    SELECT * FROM pets WHERE name = :name;
+  ]]
 
-    if not stmt then
-      error("Failed to prepare SQL statement: " .. DB:errmsg())
-    end
+  if not stmt then
+    error("Failed to prepare SQL statement: " .. DB:errmsg())
+  end
 
-    stmt:bind_names({ name = name })
+  stmt:bind_names({ name = name })
 
-    local existingPet = query(stmt)[1]
+  local existingPet = query(stmt)[1]
 
-    if existingPet then
-      Handlers.utils.reply("Error: Name already exists")(msg)
-    else
-      Handlers.utils.reply("Name is unique")(msg)
-    end
+  local result
+  if existingPet then
+    result = json.encode({unique = false})
+  else
+    result = json.encode({unique = true})
+  end
 
-    stmt:reset()
-    stmt:finalize()
+  Handlers.utils.reply(result)(msg)
+
+  stmt:reset()
+  stmt:finalize()
 end
 
 -- TODO: i think the reply has some prob so it should fix the reply in the future.
@@ -361,6 +382,39 @@ Handlers.add(
   Handlers.utils.hasMatchingTag("Action", "checkNameUnique"),
   function (msg)
     checkNameUnique(msg)
+  end
+)
+
+-- Add getTopNPets Handler to get top N pets
+Handlers.add(
+  "getTopPets",
+  Handlers.utils.hasMatchingTag("Action", "getTopPets"),
+  function (msg)
+    local dataJson = json.decode(msg.Data)
+    local number = dataJson.number
+    local topPets = getTopNPets(number)
+    local topPetsJson = json.encode(topPets)
+    Handlers.utils.reply(topPetsJson)(msg)
+  end
+)
+
+Handlers.add(
+  "sendLatestDataForPet",
+  Handlers.utils.hasMatchingTag("Action", "sendLatestDataForPet"),
+  function (msg)
+    local dataJson = json.decode(msg.Data)
+    local address = dataJson.address
+    local target = dataJson.target
+    local pet = getPet(msg.Data)
+    print(pet)
+    Send({
+      Target = target,
+      Tags = {
+          Action = "updatePet"
+      },
+      Data = json.encode(pet[1])
+    })
+    Handlers.utils.reply("finished")(msg)
   end
 )
 -- Add updateData Handler to update the data field of a pet

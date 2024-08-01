@@ -5,6 +5,8 @@ import { createAvatar } from '@dicebear/core';
 import { micah } from '@dicebear/collection';
 import * as Othent from "@othent/kms";
 
+import Arweave from 'arweave'; 
+
 declare var window: any;
 
 /**
@@ -517,7 +519,7 @@ export async function connectWallet() {
     // connect to the ArConnect browser extension
     await window.arweaveWallet.connect(
       // request permissions
-      ["ACCESS_ADDRESS", "SIGN_TRANSACTION"],
+      ["ACCESS_ADDRESS", "SIGN_TRANSACTION", "ACCESS_PUBLIC_KEY", "SIGNATURE"],
     );
   } catch (error) {
     alert('You should connect to ArConnect browser extension.');
@@ -525,6 +527,55 @@ export async function connectWallet() {
   }
 
   return true;
+}
+
+function encodeUint8ArrayToBase64(byteArray: Uint8Array) {
+  const binaryString = Array.from(byteArray, (byte) =>
+    String.fromCharCode(byte)
+  ).join("");
+  return btoa(binaryString);
+}
+
+// function decodeBase64ToUint8Array(base64String: string) {
+//   const binaryString = atob(base64String); // Decode the Base64 string to a binary string
+//   const bytes = new Uint8Array(binaryString.length);
+//   for (let i = 0; i < binaryString.length; i++) {
+//     bytes[i] = binaryString.charCodeAt(i); // Convert each character to a byte
+//   }
+//   return bytes;
+// }
+
+
+export async function signMessage(message: string) {
+  console.log("message", message);
+  const data = new TextEncoder().encode(message);
+  let sig;
+  try {
+    sig = await window.arweaveWallet.signMessage(data);
+    // const isValidSignature = await window.arweaveWallet.verifyMessage(data, sig);
+    // console.log("isValidSignature:", isValidSignature);
+    // const arweave = Arweave.init({});
+    // const hash = await crypto.subtle.digest("SHA-256", data);
+
+    // const n = getWalletPublicKey();
+    // const verify = await arweave.crypto.verify(await n, new Uint8Array(hash), sig);
+    // console.log("veriffffy: ", verify);
+    sig = encodeUint8ArrayToBase64(sig);
+  } catch (error) {
+    return '';
+  }
+  return sig;
+}
+
+export async function getWalletPublicKey() {
+
+  let pubkey;
+  try {
+    pubkey = await window.arweaveWallet.getActivePublicKey();
+  } catch (error) {
+    return '';
+  }
+  return pubkey;
 }
 
 export async function getWalletAddress() {

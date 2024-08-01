@@ -10,14 +10,26 @@ export class AppConfig {
       loggedIn: false
     },
     {
-      text: 'Rank',
+      text: 'DL Login',
+      to: '/dl-login',
+      beta: false,
+      loggedIn: false
+    }, 
+    {
+      text: 'Playground',
+      to: '/playground',
+      beta: false,
+      loggedIn: false
+    },     
+    {
+      text: 'Ranking',
       to: '/rank',
       beta: false,
       loggedIn: false
     }, 
     {
       text: 'WhitePaper',
-      to: 'https://bodhi.wtf/todo.',
+      to: 'https://bodhi.wtf/15266',
       beta: false,
       loggedIn: false
     }, 
