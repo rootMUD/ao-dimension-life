@@ -6,11 +6,30 @@ import { dryrun, message} from "https://esm.sh/@permaweb/aoconnect";
 console.log("Hello from dimension Life!");
 const key = Deno.env.get("API_KEY");
 const AO_PET = Deno.env.get("AO_PET");
+const PRIV = Deno.env.get("PRIV_KEY");
 const kv = await Deno.openKv(); // Open the key-value store
 
 async function getPet(address: string) {
   const result = await getDataFromAO(AO_PET, "getPet", { address: address });
   return result;
+}
+
+// TODO: Implement the messageToAO and the initPet Get Method.
+async function messageToAO(process: string, data: any, action: string) {
+  // try {
+  //   const messageId = await message({
+  //     process: process,
+  //     signer: createDataItemSigner(window.arweaveWallet),
+  //     tags: [{ name: 'Action', value: action }],
+  //     data: JSON.stringify(data)
+  //   });
+
+  //   // console.log("messageId:", messageId)
+  //   return messageId;
+  // } catch (error) {
+  //   console.log("messageToAO -> error:", error)
+  //   return '';
+  // }
 }
 
 async function getDataFromAO(
@@ -43,19 +62,6 @@ async function getDataFromAO(
   // console.log(`<== [getDataFromAO] [${Math.round(end - start)} ms]`);
 
   return JSON.parse(resp);
-}
-
-function encodeToHex(byteArray) {
-  return Array.from(byteArray)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-function decodeHex(hexString) {
-  const bytes = new Uint8Array(hexString.length / 2);
-  for (let i = 0, j = 0; i < hexString.length; j++, i += 2) {
-    bytes[j] = parseInt(hexString.substring(i, i + 2), 16);
-  }
-  return bytes;
 }
 
 // Function to generate a random hexadecimal string
@@ -95,6 +101,34 @@ function encodeUint8ArrayToBase64(byteArray) {
 const router = new Router();
 
 router
+  .get("/count", async (context) => {
+    let replies = await getDataFromAO(AO_PET, "getCount");
+    context.response.body = replies;
+  })
+  // .get("/init_pet", async (context) => {
+  //   const queryParams = context.request.url.searchParams;
+  //   const name = queryParams.get("name");
+  //   const description = queryParams.get("description");
+  //   const address = queryParams.get("address");
+
+  //   if (!name || !description || !address) {
+  //     context.response.status = 400;
+  //     context.response.body = { success: false, message: "Missing parameters" };
+  //     return;
+  //   }
+
+  //   try {
+  //     const result = await getDataFromAO(
+  //       AO_PET,
+  //       "initPet",
+  //       { name, description, address }
+  //     );
+  //     context.response.body = { success: true, result };
+  //   } catch (error) {
+  //     context.response.status = 500;
+  //     context.response.body = { success: false, message: error.message };
+  //   }
+  // })
   .get("/get_pet", async(context) =>{
     const queryParams = context.request.url.searchParams;
     const address = queryParams.get("address"); 

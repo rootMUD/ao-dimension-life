@@ -331,16 +331,16 @@ Handlers.add(
 )
 
 -- Add getPets Handler to get all pets
-Handlers.add(
-  "getPets",
-  Handlers.utils.hasMatchingTag("Action", "getPets"),
-  function (msg)
-    local pets = getAllPets()
-    print(pets)
-    local petsJson = json.encode(pets)
-    Handlers.utils.reply(petsJson)(msg)
-  end
-)
+-- Handlers.add(
+--   "getPets",
+--   Handlers.utils.hasMatchingTag("Action", "getPets"),
+--   function (msg)
+--     local pets = getAllPets()
+--     print(pets)
+--     local petsJson = json.encode(pets)
+--     Handlers.utils.reply(petsJson)(msg)
+--   end
+-- )
 
 -- Add updateLevel Handler
 Handlers.add(
