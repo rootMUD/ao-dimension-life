@@ -59,3 +59,5 @@ Thumbs.db
 cache
 artifacts
 typechain-types
+deno-edge-functions/.aos-wallet.json
+.aos-wallet.json

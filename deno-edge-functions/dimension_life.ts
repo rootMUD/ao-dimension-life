@@ -1,43 +1,79 @@
-import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
-import { oakCors } from "https://deno.land/x/cors/mod.ts";
+/// <reference lib="deno.unstable" />
+import {
+  Application,
+  Router,
+  send,
+} from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import Arweave from "https://cdn.skypack.dev/arweave";
-import { dryrun, message} from "https://esm.sh/@permaweb/aoconnect";
-
+// import {
+//   dryrun,
+//   message,
+//   createDataItemSigner,
+// } from "https://esm.sh/@permaweb/aoconnect@0.0.58";
+import {
+  dryrun,
+  message,
+  createDataItemSigner,
+} from "npm:@permaweb/aoconnect@0.0.58";
+import * as fs from "node:fs";
+import * as path from "node:path";
 console.log("Hello from dimension Life!");
-const key = Deno.env.get("API_KEY");
-const AO_PET = Deno.env.get("AO_PET");
+const arweave = Arweave.init({});
+const key = Deno.env.get("API_KEY") || "34e968837d573dc61e965e58fa29cc05";
+const AO_PET =
+  Deno.env.get("AO_PET") || "cO4thcoxO57AflN5hfXjce0_DydbMJclTU9kC3S75cg";
 const PRIV = Deno.env.get("PRIV_KEY");
+let arweaveWallet: any;
+if (PRIV) {
+  arweaveWallet = JSON.parse(PRIV);
+} else {
+  arweaveWallet = await getWallet();
+}
+const arweaveWalletAddress = await arweave.wallets.jwkToAddress(arweaveWallet);
+console.log("arweaveWallet:", arweaveWallet);
+console.log("arweaveWalletAddress:", arweaveWalletAddress);
 const kv = await Deno.openKv(); // Open the key-value store
 
 async function getPet(address: string) {
   const result = await getDataFromAO(AO_PET, "getPet", { address: address });
   return result;
 }
+async function getWallet() {
+  if (fs.existsSync(path.resolve("./.aos-wallet.json"))) {
+    return JSON.parse(
+      fs.readFileSync(path.resolve("./.aos-wallet.json"), "utf-8")
+    );
+  }
 
+  const wallet = await arweave.wallets.generate();
+  fs.writeFileSync(path.resolve("./.aos-wallet.json"), JSON.stringify(wallet));
+  return wallet;
+}
 // TODO: Implement the messageToAO and the initPet Get Method.
-async function messageToAO(process: string, data: any, action: string) {
-  // try {
-  //   const messageId = await message({
-  //     process: process,
-  //     signer: createDataItemSigner(window.arweaveWallet),
-  //     tags: [{ name: 'Action', value: action }],
-  //     data: JSON.stringify(data)
-  //   });
+async function messageToAO(
+  process: string,
+  data: { [key: string]: unknown },
+  action: string
+) {
+  try {
+    const signer  = createDataItemSigner(arweaveWallet);
+    const messageId = await message({
+      process: process,
+      signer,
+      tags: [{ name: "Action", value: action }],
+      data: JSON.stringify(data),
+    });
 
-  //   // console.log("messageId:", messageId)
-  //   return messageId;
-  // } catch (error) {
-  //   console.log("messageToAO -> error:", error)
-  //   return '';
-  // }
+    // console.log("messageId:", messageId)
+    return messageId;
+  } catch (error) {
+    console.log("messageToAO -> error:", error);
+    return "";
+  }
 }
 
-async function getDataFromAO(
-  process: string,
-  action: string,
-  data?: any
-) {
-
+async function getDataFromAO(process: string, action: string, data?: any) {
   let start = performance.now();
   // console.log('==> [getDataFromAO]');
 
@@ -46,17 +82,17 @@ async function getDataFromAO(
     result = await dryrun({
       process,
       data: JSON.stringify(data),
-      tags: [{ name: 'Action', value: action }]
+      tags: [{ name: "Action", value: action }],
     });
   } catch (error) {
-    console.log('getDataFromAO --> ERR:', error)
-    return '';
+    console.log("getDataFromAO --> ERR:", error);
+    return "";
   }
 
   // console.log('action', action);
   // console.log('result', result);
 
-  let resp = result.Messages[0].Data;
+  const resp = result.Messages[0].Data;
 
   let end = performance.now();
   // console.log(`<== [getDataFromAO] [${Math.round(end - start)} ms]`);
@@ -65,7 +101,7 @@ async function getDataFromAO(
 }
 
 // Function to generate a random hexadecimal string
-function generateRandomHex(length) {
+function generateRandomHex(length: number) {
   return Array.from({ length }, () =>
     Math.floor(Math.random() * 256)
       .toString(16)
@@ -82,7 +118,7 @@ function generateRandomHex(length) {
 //   return Buffer.from(bytes); // Convert Uint8Array to Buffer
 // }
 
-function decodeBase64ToUint8Array(base64String) {
+function decodeBase64ToUint8Array(base64String: string) {
   const binaryString = atob(base64String); // Decode the Base64 string to a binary string
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -91,7 +127,7 @@ function decodeBase64ToUint8Array(base64String) {
   return bytes;
 }
 
-function encodeUint8ArrayToBase64(byteArray) {
+function encodeUint8ArrayToBase64(byteArray: Uint8Array) {
   const binaryString = Array.from(byteArray, (byte) =>
     String.fromCharCode(byte)
   ).join("");
@@ -102,45 +138,52 @@ const router = new Router();
 
 router
   .get("/count", async (context) => {
-    let replies = await getDataFromAO(AO_PET, "getCount");
+    const replies = await getDataFromAO(AO_PET, "getCount");
     context.response.body = replies;
   })
-  // .get("/init_pet", async (context) => {
-  //   const queryParams = context.request.url.searchParams;
-  //   const name = queryParams.get("name");
-  //   const description = queryParams.get("description");
-  //   const address = queryParams.get("address");
-
-  //   if (!name || !description || !address) {
-  //     context.response.status = 400;
-  //     context.response.body = { success: false, message: "Missing parameters" };
-  //     return;
-  //   }
-
-  //   try {
-  //     const result = await getDataFromAO(
-  //       AO_PET,
-  //       "initPet",
-  //       { name, description, address }
-  //     );
-  //     context.response.body = { success: true, result };
-  //   } catch (error) {
-  //     context.response.status = 500;
-  //     context.response.body = { success: false, message: error.message };
-  //   }
-  // })
-  .get("/get_pet", async(context) =>{
+  .get("/init_pet", async (context) => {
     const queryParams = context.request.url.searchParams;
-    const address = queryParams.get("address"); 
-    const result = await getPet(address);
+    const name = queryParams.get("name");
+    const description = queryParams.get("description");
+    const address = queryParams.get("address");
+
+    if (!name || !description || !address) {
+      context.response.status = 400;
+      context.response.body = { success: false, message: "Missing parameters" };
+      return;
+    }
+
+    try {
+      const messageID = await messageToAO(
+        AO_PET,
+        { name, description, address:arweaveWalletAddress },
+        "initPet"
+      );
+      const petInfo = await getPet(address);
+      context.response.body = { success: true, result: petInfo };
+    } catch (error) {
+      context.response.status = 500;
+      context.response.body = { success: false, message: error.message };
+    }
+  })
+  .get("/get_pet", async (context) => {
+    const queryParams = context.request.url.searchParams;
+    const address = queryParams.get("address");
+    let result: Array<any> = [{}];
+    if (address) {
+      result = await getPet(address);
+    } else {
+      // Handle the case when address is null
+      context.response.status = 400;
+    }
     context.response.body = result[0];
   })
-  .get("/get_pet_with_auth", async(context) =>{
+  .get("/get_pet_with_auth", async (context) => {
     const queryParams = context.request.url.searchParams;
-    const token = queryParams.get("token");
+    const token = queryParams.get("token") as string;
     // Attempt to retrieve the address associated with the token from the key-value store
     const v = await kv.get([token]);
-    const address = v.value;
+    const address = v.value as string;
     console.log("address in get_pet_with_auth:", address);
     const result = await getPet(address);
     context.response.body = result[0];
@@ -156,7 +199,7 @@ router
     console.log("msg signed:", data);
     const arweave = Arweave.init({});
     const walletA = await arweave.wallets.generate();
-    const msg = new TextEncoder().encode(result.value);
+    const msg = new TextEncoder().encode(result.value as string);
     const hash = await crypto.subtle.digest("SHA-256", msg);
     const sigA = await arweave.crypto.sign(walletA, hash);
     context.response.body = {
@@ -199,37 +242,42 @@ router
    * -d '{"sig":"{sig}", "n": "{n}"}'
    */
   .post("/gen_token", async (context) => {
-
     const arweave = Arweave.init({});
-    let content = await context.request.body.text();
-    content = JSON.parse(content);
-    const addr = content.addr;
-    const sig = decodeBase64ToUint8Array(content.sig);
-    const n = content.n;
+    const content = await context.request.body.text();
+    const parsedContent = JSON.parse(content);
+    const addr = parsedContent.addr;
+    const sig = decodeBase64ToUint8Array(parsedContent.sig);
+    const n = parsedContent.n;
 
     const result = await kv.get(["msg"]);
     // Extract the 'value' from the result object
     console.log("msg:", result.value);
     // same as:
     // > https://docs.arconnect.io/api/sign-message
-    const msg = new TextEncoder().encode(result.value);
+    const msg = new TextEncoder().encode(result.value as string);
     const hash = await crypto.subtle.digest("SHA-256", msg);
 
+    const verify = await arweave.crypto.verify(
+      await n,
+      new Uint8Array(hash),
+      sig
+    );
 
-    const verify = await arweave.crypto.verify(await n, new Uint8Array(hash), sig);
-    
     let token = "";
     let resp: any;
     if (verify === true) {
       // do sth you want!
       token = generateRandomHex(16); // Generates a 16-byte (32 characters) hex string
       resp = await kv.set([token], addr);
-
     } else {
       // do sth else you want!
       console.log("opps: ", addr);
     }
-    context.response.body = { "verification": verify, result: resp, token: token };
+    context.response.body = {
+      verification: verify,
+      result: resp,
+      token: token,
+    };
   })
   // deno run --unstable-kv --unstable-cron -A ./dimension_life.tsx
   .get("/set_msg", async (context) => {
