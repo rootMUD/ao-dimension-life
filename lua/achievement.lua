@@ -374,7 +374,6 @@ Handlers.add(
   end
 )
 
-
 -- -- Function to update a whitelist item
 -- local function updateWhitelistItem(id, description, process_id, name)
 --   local stmt = DB:prepare [[
