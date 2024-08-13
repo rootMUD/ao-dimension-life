@@ -5,10 +5,13 @@ import NavBarButton from './NavBarButton';
 import { Server } from '../../server/server';
 import { subscribe } from '../util/event';
 
+interface NavBarProps {
+  address: string | null;
+}
 
-class NavBar extends React.Component {
+class NavBar extends React.Component<NavBarProps> {
 
-  constructor(props: any) {
+  constructor(props: NavBarProps) {
     super(props);
     subscribe('wallet-events', () => {
       this.forceUpdate();
@@ -19,13 +22,12 @@ class NavBar extends React.Component {
     return (
       <NavBarButton
         key={menu.text}
-        // icon={getMenuIcon(menu.icon)}
         text={menu.text}
         to={menu.to}
         beta={menu.beta}
         new={menu.new}
       />
-    )
+    );
   }
 
   render() {
@@ -34,12 +36,26 @@ class NavBar extends React.Component {
 
     for (let i = 0; i < menu.length; i++) {
       if (menu[i].loggedIn) {
-        if (Server.service.isLoggedIn())
+        if (Server.service.isLoggedIn()) {
           buttons.push(this.renderButton(menu[i]));
-      }
-      else
+        }
+      } else {
         buttons.push(this.renderButton(menu[i]));
+      }
     }
+
+    // Conditionally render the profile link if the address is not null
+    // if (this.props.address) {
+    //   buttons.push(
+    //     <NavBarButton
+    //       key="Profile"
+    //       text="Profile"
+    //       to="/profile"
+    //       beta=""
+    //       new=""
+    //     />
+    //   );
+    // }
 
     return (
       <nav>

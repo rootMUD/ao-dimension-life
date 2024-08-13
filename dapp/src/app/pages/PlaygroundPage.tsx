@@ -347,7 +347,7 @@ class PlaygroundPage extends React.Component<{}, PlaygroundPageState> {
                 ArConnect
               </div>
             )}
-            <NavBar />
+            <NavBar address={this.state.address} />
           </div>
           <center>
             <h2>Playground</h2>

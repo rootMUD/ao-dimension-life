@@ -17,7 +17,7 @@ export class AppConfig {
     }, 
     {
       text: 'Playground',
-      to: '/playground',
+      to: 'https://world.rootmud.xyz',
       beta: false,
       loggedIn: false
     },     

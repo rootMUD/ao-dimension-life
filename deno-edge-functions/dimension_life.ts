@@ -57,12 +57,13 @@ async function messageToAO(
   action: string
 ) {
   try {
-    const signer  = createDataItemSigner(arweaveWallet);
+    let arWallet = await getWallet();
+    console.log("arWallet:", arWallet);
     const messageId = await message({
-      process: process,
-      signer,
-      tags: [{ name: "Action", value: action }],
-      data: JSON.stringify(data),
+      process: "Rijbx6FduUMdCZM0tJ4PPxXljUNy1m0u_kmMIFGFM5c",
+      signer: createDataItemSigner(arWallet),
+      tags: [{ name: "Action", value: "AddNew" }],
+      data: "data",
     });
 
     // console.log("messageId:", messageId)
@@ -156,7 +157,7 @@ router
     try {
       const messageID = await messageToAO(
         AO_PET,
-        { name, description, address:arweaveWalletAddress },
+        { name: name, description: description, address: address },
         "initPet"
       );
       const petInfo = await getPet(address);
@@ -280,30 +281,30 @@ router
     };
   })
   // deno run --unstable-kv --unstable-cron -A ./dimension_life.tsx
-  .get("/set_msg", async (context) => {
-    const queryParams = context.request.url.searchParams;
-    const apiKey = queryParams.get("key"); // 'id' will be a string or null if not present
-    // Generate a random hexadecimal message
-    const msg = generateRandomHex(16); // Generates a 16-byte (32 characters) hex string
-    // Verify the API key
-    if (apiKey !== key) {
-      context.response.status = 401; // Unauthorized status code
-      context.response.body = {
-        success: false,
-        message: "Unauthorized: Invalid API key",
-      };
-      return; // Stop further execution if the API key is not valid
-    }
-    // Set the generated message in the key-value store with the key "msg"
-    const result = await kv.set(["msg"], msg);
-    console.log(result);
-    // Optionally, send the result back to the client or a confirmation message
-    context.response.body = {
-      success: true,
-      message: "Message set successfully",
-      hex: msg,
-    };
-  })
+  // .get("/set_msg", async (context) => {
+  //   const queryParams = context.request.url.searchParams;
+  //   const apiKey = queryParams.get("key"); // 'id' will be a string or null if not present
+  //   // Generate a random hexadecimal message
+  //   const msg = generateRandomHex(16); // Generates a 16-byte (32 characters) hex string
+  //   // Verify the API key
+  //   if (apiKey !== key) {
+  //     context.response.status = 401; // Unauthorized status code
+  //     context.response.body = {
+  //       success: false,
+  //       message: "Unauthorized: Invalid API key",
+  //     };
+  //     return; // Stop further execution if the API key is not valid
+  //   }
+  //   // Set the generated message in the key-value store with the key "msg"
+  //   const result = await kv.set(["msg"], msg);
+  //   console.log(result);
+  //   // Optionally, send the result back to the client or a confirmation message
+  //   context.response.body = {
+  //     success: true,
+  //     message: "Message set successfully",
+  //     hex: msg,
+  //   };
+  // })
   .get("/msg", async (context) => {
     // Assuming `kv.get` returns the result directly as shown
     const result = await kv.get(["msg"]);

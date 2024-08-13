@@ -268,27 +268,35 @@ class DLLoginPage extends React.Component<{}, DLLoginPageState> {
     return (
       <div className="app-container">
         <div className="site-page-header-pc">
-          {/* TODO: make the ArConnect & The NavBar in the same line. */}
-          <div className="header-container">
-            {this.state.address ? (
-              <div className="wallet-container">
+        <div className="header-container">
+            <div className="wallet-container">
+              {this.state.address ? (
+                <>
+                  <div
+                    className="app-icon-button connect"
+                    onClick={() => this.disconnectWallet()}
+                  >
+                    {shortAddress}
+                  </div>
+                  <a href="/#/profile">
+                  <div
+                    className="profile-button"
+                  >
+                    Profile
+                  </div>
+                  </a>
+                </>
+              ) : (
                 <div
                   className="app-icon-button connect"
-                  onClick={() => this.disconnectWallet()}
+                  onClick={() => this.connect2ArConnect()}
                 >
-                  {shortAddress}
+                  <BsWallet2 size={20} />
+                  ArConnect
                 </div>
-              </div>
-            ) : (
-              <div
-                className="app-icon-button connect"
-                onClick={() => this.connect2ArConnect()}
-              >
-                <BsWallet2 size={20} />
-                ArConnect
-              </div>
-            )}
-            <NavBar />
+              )}
+            </div>
+            <NavBar address={this.state.address} />
           </div>
           <center>
             <h2>Dimension Life Login</h2>

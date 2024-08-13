@@ -1,11 +1,10 @@
 import React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import SitePage from "./pages/SitePage";
-import NotFoundPage from "./pages/NotFoundPage";
+import ProfilePage from "./pages/ProfilePage";
 import "./App.css";
 import DLLoginPage from "./pages/DLLoginPage";
 import RankPage from "./pages/RankPage";
-import PlaygroundPage from "./pages/PlaygroundPage";
 
 class App extends React.Component<{}, {}> {
   constructor(props = {}) {
@@ -20,9 +19,10 @@ class App extends React.Component<{}, {}> {
         <Routes>
           <Route path="/" element={<SitePage />} />
           <Route path="/dl-login" element={<DLLoginPage />} />
-          <Route path="/playground" element={<PlaygroundPage />} />
+          {/* <Route path="/playground" element={<PlaygroundPage />} /> */}
           <Route path="/rank" element={<RankPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/rank" element={<RankPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </HashRouter>
     );

@@ -142,3 +142,35 @@
   color: white;
 }
 
+
+.header-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+}
+
+.top-line {
+  display: flex;
+  align-items: center; /* Align items vertically in the center */
+  justify-content: flex-end; /* Align items to the right */
+  margin-bottom: 10px; /* Add some space between the top line and NavBar */
+}
+
+.wallet-container {
+  display: flex;
+  align-items: center;
+}
+
+.app-icon-button.connect {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 10px; /* Space between wallet button and profile button */
+}
+
+.profile-button {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+

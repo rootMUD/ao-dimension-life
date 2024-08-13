@@ -1,7 +1,7 @@
 -- ProcessId: [TODO]
 local json = require("json")
 local sqlite3 = require("lsqlite3")
-local admin = "3lCMEfn4W9KnAwzsu8AOpQzhEAer49mnMBQ5FppoyIs"
+local admin = "wbIGThLriLEzpuL5yS__aba2jn0YAF471adJTrc0Pdg"
 
 DB = DB or sqlite3.open_memory()
 
@@ -262,6 +262,8 @@ local function getAllAchievements(cursor, limit)
   return rows
 end
 
+
+-- 
 -- Handler to get all achievements with pagination
 Handlers.add(
   "GetAllAchievements",
@@ -352,6 +354,7 @@ local function addWhitelistItem(description, process_id, name)
   stmt:finalize()
 end
 
+-- Send({ Target = ao.id, Action = "CreateWhitelistItem", Data = '{"process_id": "3eDlLGwAYtLRG2gD84VJj35Vqsndz8Qien1oD5KItlY", "name":"yuan-superisor", "description": "yuan superisor in yuan space."}'})
 -- Handler to create a whitelist item
 Handlers.add(
   "CreateWhitelistItem",
