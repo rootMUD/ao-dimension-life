@@ -48,6 +48,7 @@ interface DLLoginPageState {
 class DLLoginPage extends React.Component<{}, DLLoginPageState> {
   constructor(props: {}) {
     super(props);
+    const address = Server.service.isLoggedIn();
     this.state = {
       publicKey: "",
       top: [],
@@ -57,7 +58,7 @@ class DLLoginPage extends React.Component<{}, DLLoginPageState> {
       posts: 0,
       replies: 0,
       open: false,
-      address: "",
+      address,
       openMenu: false,
       count: 0,
       message: "",
@@ -87,6 +88,7 @@ class DLLoginPage extends React.Component<{}, DLLoginPageState> {
   }
 
   componentDidMount() {
+    Server.service.checkPermisson();
     this.start();
   }
 

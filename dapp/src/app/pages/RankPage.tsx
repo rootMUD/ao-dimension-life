@@ -14,8 +14,7 @@ import "./RankPage.css";
 
 import { BsWallet2 } from "react-icons/bs";
 
-import NavBar from '../elements/NavBar'; 
-
+import NavBar from "../elements/NavBar";
 
 interface Pet {
   name: string;
@@ -45,6 +44,7 @@ interface RankPageState {
 class RankPage extends React.Component<{}, RankPageState> {
   constructor(props: {}) {
     super(props);
+    const address = Server.service.isLoggedIn();
     this.state = {
       top: [],
       name: "",
@@ -53,7 +53,7 @@ class RankPage extends React.Component<{}, RankPageState> {
       posts: 0,
       replies: 0,
       open: false,
-      address: "",
+      address,
       openMenu: false,
       count: 0,
       message: "",
@@ -82,6 +82,7 @@ class RankPage extends React.Component<{}, RankPageState> {
   }
 
   componentDidMount() {
+    Server.service.checkPermisson();
     this.start();
   }
 
@@ -232,11 +233,7 @@ class RankPage extends React.Component<{}, RankPageState> {
                     {shortAddress}
                   </div>
                   <a href="/#/profile">
-                  <div
-                    className="profile-button"
-                  >
-                    Profile
-                  </div>
+                    <div className="profile-button">Profile</div>
                   </a>
                 </>
               ) : (
@@ -251,7 +248,9 @@ class RankPage extends React.Component<{}, RankPageState> {
             </div>
             <NavBar address={this.state.address} />
           </div>
-          <h2><center>Ranking</center></h2>
+          <h2>
+            <center>Ranking</center>
+          </h2>
           <table className="top-pets-table">
             <thead>
               <tr>
@@ -273,14 +272,14 @@ class RankPage extends React.Component<{}, RankPageState> {
             </tbody>
           </table>
         </div>
-    
+
         {/* FOR MOBILE */}
         <div className="site-page-header-mobile">
           <Portrait />
           <p>mobile version is not supported yet.</p>
         </div>
       </div>
-    );    
+    );
   }
 }
 

@@ -18,8 +18,7 @@ import { BsWallet2 } from "react-icons/bs";
 
 import PetCard from "../elements/PetCard"; // Import the PetCard component
 
-import NavBar from '../elements/NavBar'; 
-
+import NavBar from "../elements/NavBar";
 
 interface Pet {
   name: string;
@@ -48,6 +47,7 @@ interface SitePageState {
 class SitePage extends React.Component<{}, SitePageState> {
   constructor(props: {}) {
     super(props);
+    const address = Server.service.isLoggedIn();
     this.state = {
       name: "",
       description: "",
@@ -55,7 +55,7 @@ class SitePage extends React.Component<{}, SitePageState> {
       posts: 0,
       replies: 0,
       open: false,
-      address: "",
+      address,
       openMenu: false,
       count: 0,
       message: "",
@@ -67,7 +67,6 @@ class SitePage extends React.Component<{}, SitePageState> {
       let address = Server.service.isLoggedIn();
       this.setState({ address });
     });
-
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -84,6 +83,7 @@ class SitePage extends React.Component<{}, SitePageState> {
   }
 
   componentDidMount() {
+    Server.service.checkPermisson();
     this.start();
   }
 
@@ -228,7 +228,7 @@ class SitePage extends React.Component<{}, SitePageState> {
     return (
       <div className="app-container">
         <div className="site-page-header-pc">
-        <div className="header-container">
+          <div className="header-container">
             <div className="wallet-container">
               {this.state.address ? (
                 <>
@@ -239,11 +239,7 @@ class SitePage extends React.Component<{}, SitePageState> {
                     {shortAddress}
                   </div>
                   <a href="/#/profile">
-                  <div
-                    className="profile-button"
-                  >
-                    Profile
-                  </div>
+                    <div className="profile-button">Profile</div>
                   </a>
                 </>
               ) : (
