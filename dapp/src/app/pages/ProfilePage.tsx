@@ -46,6 +46,7 @@ interface RankPageState {
 class RankPage extends React.Component<{}, RankPageState> {
   constructor(props: {}) {
     super(props);
+    const address = Server.service.isLoggedIn();
     this.state = {
       top: [],
       name: "",
@@ -54,7 +55,7 @@ class RankPage extends React.Component<{}, RankPageState> {
       posts: 0,
       replies: 0,
       open: false,
-      address: "",
+      address: address,
       openMenu: false,
       count: 0,
       message: "",
@@ -82,7 +83,9 @@ class RankPage extends React.Component<{}, RankPageState> {
   handleDescriptionChange(event: { target: { value: any } }) {
     this.setState({ description: event.target.value });
   }
-
+  componentDidMount() {
+    Server.service.checkPermisson();
+  }
   async initPet() {
     let response = await messageToAO(
       AO_PET,

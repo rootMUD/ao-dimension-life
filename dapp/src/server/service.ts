@@ -1,35 +1,46 @@
-export class Service {
-  protected profiles:any;
-  protected posts:any;
-  protected postsInProfile:any;
-  protected post:any;
-  protected position:number;
-  protected positionInProfile:number;
+import { publish } from "../app/util/event";
 
-  protected addrLogIn:string;
-  protected activeAddress:string;
-  protected defaultProcess:string;
-  protected balanceOfCRED:number;
-  protected balanceOfAOT:number;
-  protected balanceOfTRUNK:number;
-  protected balanceOfWAR:number;
-  protected balanceOf0rbit:number;
+export class Service {
+  protected profiles: any;
+  protected posts: any;
+  protected postsInProfile: any;
+  protected post: any;
+  protected position: number;
+  protected positionInProfile: number;
+
+  protected addrLogIn: string;
+  protected activeAddress: string;
+  protected defaultProcess: string;
+  protected balanceOfCRED: number;
+  protected balanceOfAOT: number;
+  protected balanceOfTRUNK: number;
+  protected balanceOfWAR: number;
+  protected balanceOf0rbit: number;
 
   constructor() {
     this.profiles = [];
     this.post = [];
     this.postsInProfile = [];
   }
-
-  public getProfile(id:string) {
+  async checkPermisson() {
+    if (window.arweaveWallet && window.arweaveWallet.getPermissions) {
+      const permissions = await window.arweaveWallet.getPermissions();
+      if (permissions.length > 0) {
+        const address = await window.arweaveWallet.getActiveAddress();
+        this.setIsLoggedIn(address);
+        this.setActiveAddress(address);
+      }
+    }
+  }
+  public getProfile(id: string) {
     return this.profiles[id];
   }
 
-  public addProfileToCache(profile:any) {
+  public addProfileToCache(profile: any) {
     this.profiles[profile.address] = profile;
   }
 
-  public addPositionToCache(position:number) {
+  public addPositionToCache(position: number) {
     this.position = position;
   }
 
@@ -37,7 +48,7 @@ export class Service {
     return this.position;
   }
 
-  public addPositionInProfileToCache(position:number) {
+  public addPositionInProfileToCache(position: number) {
     this.positionInProfile = position;
   }
 
@@ -45,92 +56,92 @@ export class Service {
     return this.positionInProfile;
   }
 
-  public addPostsToCache(posts:any) {
+  public addPostsToCache(posts: any) {
     this.posts = posts;
   }
-  
+
   public getPostsFromCache() {
     return this.posts;
   }
-  
-  public addPostToCache(post:any) {
+
+  public addPostToCache(post: any) {
     this.post[post.id] = post;
   }
 
-  public getPostFromCache(id:string) {
+  public getPostFromCache(id: string) {
     return this.post[id];
   }
-  
-  public addPostsInProfileToCache(id: string, posts:any) {
+
+  public addPostsInProfileToCache(id: string, posts: any) {
     this.postsInProfile[id] = posts;
   }
 
-  public getPostsInProfileFromCache(id:string) {
+  public getPostsInProfileFromCache(id: string) {
     return this.postsInProfile[id];
   }
-  
-  public setIsLoggedIn(address:string) {
+
+  public setIsLoggedIn(address: string) {
     this.addrLogIn = address;
+    publish("wallet-events", "isLoggedIn");
   }
 
   public isLoggedIn() {
-    return this.addrLogIn;
+    return this.addrLogIn || "";
   }
-  
-  public setActiveAddress(activeAddress:string) {
+
+  public setActiveAddress(activeAddress: string) {
     this.activeAddress = activeAddress;
   }
 
   public getActiveAddress() {
-    return this.activeAddress;
+    return this.activeAddress || "";
   }
-  
-  public setDefaultProcess(process:string) {
+
+  public setDefaultProcess(process: string) {
     this.defaultProcess = process;
   }
 
   public getDefaultProcess() {
     return this.defaultProcess;
   }
-  
-  public setBalanceOfAOT(bal:number) {
+
+  public setBalanceOfAOT(bal: number) {
     this.balanceOfAOT = bal;
   }
 
   public getBalanceOfAOT() {
     return this.balanceOfAOT;
   }
-  
-  public setBalanceOfTRUNK(bal:number) {
+
+  public setBalanceOfTRUNK(bal: number) {
     this.balanceOfTRUNK = bal;
   }
 
   public getBalanceOfTRUNK() {
     return this.balanceOfTRUNK;
   }
-  
-  public setBalanceOfCRED(bal:number) {
+
+  public setBalanceOfCRED(bal: number) {
     this.balanceOfCRED = bal;
   }
 
   public getBalanceOfCRED() {
     return this.balanceOfCRED;
   }
-  
-  public setBalanceOfWAR(bal:number) {
+
+  public setBalanceOfWAR(bal: number) {
     this.balanceOfWAR = bal;
   }
 
   public getBalanceOfWAR() {
     return this.balanceOfWAR;
   }
-  
-  public setBalanceOf0rbit(bal:number) {
+
+  public setBalanceOf0rbit(bal: number) {
     this.balanceOf0rbit = bal;
   }
 
   public getBalanceOf0rbit() {
     return this.balanceOf0rbit;
   }
-  
 }
