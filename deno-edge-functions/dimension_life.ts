@@ -1,4 +1,3 @@
-/// <reference lib="deno.unstable" />
 import {
   Application,
   Router,
@@ -6,6 +5,10 @@ import {
 } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import Arweave from "https://cdn.skypack.dev/arweave";
+import {ethers} from "npm:ethers";
+import { createData } from "npm:arseeding-arbundles";
+
+
 // import {
 //   dryrun,
 //   message,
@@ -14,10 +17,8 @@ import Arweave from "https://cdn.skypack.dev/arweave";
 import {
   dryrun,
   message,
-  createDataItemSigner,
 } from "npm:@permaweb/aoconnect@0.0.58";
-import * as fs from "node:fs";
-import * as path from "node:path";
+
 console.log("Hello from dimension Life!");
 const arweave = Arweave.init({});
 const key = Deno.env.get("API_KEY") || "34e968837d573dc61e965e58fa29cc05";
@@ -30,26 +31,59 @@ if (PRIV) {
 } else {
   arweaveWallet = await getWallet();
 }
-const arweaveWalletAddress = await arweave.wallets.jwkToAddress(arweaveWallet);
-console.log("arweaveWallet:", arweaveWallet);
-console.log("arweaveWalletAddress:", arweaveWalletAddress);
+
 const kv = await Deno.openKv(); // Open the key-value store
+
+async function createDataItemSigner({
+  data,
+  tags = [],
+  target,
+  anchor,
+}: {
+  data: any;
+  tags?: { name: string; value: string }[];
+  target?: string;
+  anchor?: string;
+}): Promise<{ id: string; raw: ArrayBuffer }> {
+  // Use the locally created or loaded Ethereum wallet
+  const wallet = await getWallet();
+
+  // Initialize the signer with the wallet
+  const provider = ethers.getDefaultProvider(); // or specify a network like 'homestead'
+  const signer = wallet.connect(provider);
+
+  // Create the data item using the wallet's signer
+  const injectedSigner = new InjectedEthereumSigner(signer);
+  await injectedSigner.setPublicKey();
+
+  const dataItem = createData(data, injectedSigner, { tags, target, anchor });
+
+  // Sign the data item
+  await dataItem.sign(injectedSigner);
+
+  return {
+    id: dataItem.id,
+    raw: dataItem.getRaw(),
+  };
+}
 
 async function getPet(address: string) {
   const result = await getDataFromAO(AO_PET, "getPet", { address: address });
   return result;
 }
-async function getWallet() {
-  if (fs.existsSync(path.resolve("./.aos-wallet.json"))) {
-    return JSON.parse(
-      fs.readFileSync(path.resolve("./.aos-wallet.json"), "utf-8")
-    );
-  }
 
-  const wallet = await arweave.wallets.generate();
-  fs.writeFileSync(path.resolve("./.aos-wallet.json"), JSON.stringify(wallet));
-  return wallet;
+async function getWallet() {
+  if (PRIV) {
+    // Load the wallet from the provided private key
+    const wallet = new ethers.Wallet(PRIV);
+    return wallet;
+  } else {
+    // Generate a new Ethereum wallet
+    const wallet = ethers.Wallet.createRandom();
+    return wallet;
+  }
 }
+
 // TODO: Implement the messageToAO and the initPet Get Method.
 async function messageToAO(
   process: string,
@@ -57,11 +91,11 @@ async function messageToAO(
   action: string
 ) {
   try {
-    let arWallet = await getWallet();
-    console.log("arWallet:", arWallet);
+    let ethWallet = await getWallet();
+    console.log("ethWallet:", ethWallet);
     const messageId = await message({
       process: "Rijbx6FduUMdCZM0tJ4PPxXljUNy1m0u_kmMIFGFM5c",
-      signer: createDataItemSigner(arWallet),
+      signer: createDataItemSigner(ethWallet),
       tags: [{ name: "Action", value: "AddNew" }],
       data: "data",
     });
@@ -160,6 +194,7 @@ router
         { name: name, description: description, address: address },
         "initPet"
       );
+      console.log("messageID:", messageID);
       const petInfo = await getPet(address);
       context.response.body = { success: true, result: petInfo };
     } catch (error) {
