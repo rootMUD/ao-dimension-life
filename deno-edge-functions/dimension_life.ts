@@ -6,8 +6,12 @@ import {
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import Arweave from "https://cdn.skypack.dev/arweave";
 import {ethers} from "npm:ethers";
-import { createData } from "npm:arseeding-arbundles";
 
+// import { EthereumSigner } from "https://github.com/leeduckgo/arbundles/raw/master/src/signing/chains/ethereumSigner.ts";
+
+import { createData } from "https://cdn.skypack.dev/arseeding-arbundles/src/file/createData.ts";
+
+// import { InjectedEthereumSigner } from "https://cdn.skypack.dev/arseeding-arbundles/src/signing/index.ts";
 
 // import {
 //   dryrun,
@@ -25,6 +29,7 @@ const key = Deno.env.get("API_KEY") || "34e968837d573dc61e965e58fa29cc05";
 const AO_PET =
   Deno.env.get("AO_PET") || "cO4thcoxO57AflN5hfXjce0_DydbMJclTU9kC3S75cg";
 const PRIV = Deno.env.get("PRIV_KEY");
+
 let arweaveWallet: any;
 if (PRIV) {
   arweaveWallet = JSON.parse(PRIV);
@@ -47,19 +52,12 @@ async function createDataItemSigner({
 }): Promise<{ id: string; raw: ArrayBuffer }> {
   // Use the locally created or loaded Ethereum wallet
   const wallet = await getWallet();
-
-  // Initialize the signer with the wallet
-  const provider = ethers.getDefaultProvider(); // or specify a network like 'homestead'
-  const signer = wallet.connect(provider);
-
-  // Create the data item using the wallet's signer
-  const injectedSigner = new InjectedEthereumSigner(signer);
-  await injectedSigner.setPublicKey();
-
-  const dataItem = createData(data, injectedSigner, { tags, target, anchor });
-
+const signer = null;
+  // const signer = new EthereumSigner("8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f");
+  const dataItem = createData(data, signer, { tags, target, anchor });
+  console.log("dataItem:", dataItem);
   // Sign the data item
-  await dataItem.sign(injectedSigner);
+  await dataItem.sign(signer);
 
   return {
     id: dataItem.id,
@@ -71,6 +69,8 @@ async function getPet(address: string) {
   const result = await getDataFromAO(AO_PET, "getPet", { address: address });
   return result;
 }
+
+// Ethereum related functions
 
 async function getWallet() {
   if (PRIV) {
