@@ -122,7 +122,7 @@ const ETHSpace: NextPage = () => {
 
       const updatedPetInfo = await response.json();
       console.log("Pet level updated successfully:", updatedPetInfo);
-      setPet(updatedPetInfo.result); // Update the pet information in state
+      getPet(); // Refresh pet data after feeding
     } catch (error) {
       console.error("Error updating pet level:", error);
     }
