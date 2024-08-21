@@ -17,7 +17,7 @@ import {
 } from "./signer";
 
 console.log("Hello from dimension Life!");
-const useAR = false;
+const useAR = process.env.USE_AR || true;
 const key = process.env.API_KEY || "34e968837d573dc61e965e58fa29cc05";
 const AO_PET =
   process.env.AO_PET || "cO4thcoxO57AflN5hfXjce0_DydbMJclTU9kC3S75cg";
