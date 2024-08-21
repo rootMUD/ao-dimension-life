@@ -1,26 +1,131 @@
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import ReactMarkdown from "react-markdown";
-
-// Define data types for response and search results
-export type resultByDataset = {
-  dataset_id: string;
-  results: search_result[];
-};
-
-export type search_result = {
-  id: string;
-  data: string;
-  metadata: {};
-};
+import { useAccount } from "wagmi";
+import PetCard from "~~/components/PetCard";
 
 const ETHSpace: NextPage = () => {
+  const { address, isConnected } = useAccount();
   const [count, setCount] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [pet, setPet] = useState<any>(null); // State to store pet information
 
-  const handleOnClick = async () => {
-    console.log("Get My Pet button clicked");
+  const checkNameUnique = async (name: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`https://d-life.deno.dev/check_name_unique?name=${encodeURIComponent(name)}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check name uniqueness");
+      }
+
+      const result = await response.json();
+      return result.unique; // Assuming the API returns { unique: true/false }
+    } catch (error) {
+      console.error("Error checking name uniqueness:", error);
+      return false;
+    }
+  };
+
+  const getPet = async () => {
+    if (!isConnected || !address) {
+      alert("Please connect your wallet to proceed.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://d-life.deno.dev/get_pet?address=${encodeURIComponent(address)}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log("No pet found for this address.");
+          setPet(null); // No pet found, clear the pet state
+        } else {
+          throw new Error("Failed to fetch pet information");
+        }
+        return;
+      }
+
+      const petInfo = await response.json();
+      console.log("Pet information retrieved successfully:", petInfo);
+      setPet(petInfo); // Set the pet information in state
+    } catch (error) {
+      console.error("Error fetching pet information:", error);
+    }
+  };
+
+  const initPet = async () => {
+    if (!isConnected || !address) {
+      alert("Please connect your wallet to proceed.");
+      return;
+    }
+
+    // Check if the name is unique
+    const isUnique = await checkNameUnique(name);
+    if (!isUnique) {
+      alert("The pet name is already taken. Please choose another name.");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://ao-dimension-life-1.onrender.com/init_pet?name=${encodeURIComponent(
+          name,
+        )}&description=${encodeURIComponent(description)}&address=${address}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to initialize pet");
+      }
+
+      const petInfo = await response.json();
+      console.log("Pet initialized successfully:", petInfo);
+      setPet(petInfo); // Set the newly created pet information in state
+    } catch (error) {
+      console.error("Error initializing pet:", error);
+    }
+  };
+
+  const updatePetLevel = async () => {
+    if (!address) return;
+
+    try {
+      const response = await fetch(
+        `https://ao-dimension-life-1.onrender.com/update_level?address=${encodeURIComponent(address)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update pet level");
+      }
+
+      const updatedPetInfo = await response.json();
+      console.log("Pet level updated successfully:", updatedPetInfo);
+      setPet(updatedPetInfo.result); // Update the pet information in state
+    } catch (error) {
+      console.error("Error updating pet level:", error);
+    }
   };
 
   const fetchPetCount = async () => {
@@ -40,6 +145,12 @@ const ETHSpace: NextPage = () => {
     fetchPetCount();
   }, []);
 
+  useEffect(() => {
+    if (isConnected) {
+      getPet();
+    }
+  }, [isConnected]);
+
   const isButtonDisabled = () => {
     return !name || !description;
   };
@@ -58,17 +169,17 @@ const ETHSpace: NextPage = () => {
                                           \\/_____/   \\/_/   \\/_/     \\/_____/                     
                                                                                                   
     `;
-    const codeStyle = {
-      lineHeight: "1.2", // Adjust the line height to reduce spacing
-      padding: "10px", // Adjust padding as needed
-      margin: "0", // Remove default margins
-    };
+  const codeStyle = {
+    lineHeight: "1.2", // Adjust the line height to reduce spacing
+    padding: "10px", // Adjust padding as needed
+    margin: "0", // Remove default margins
+  };
 
   return (
     <div className="grid lg:grid-cols-1 flex-grow p-4">
       <div className="hero min-h-screen bg-base-200 bg-gradient-to-r from-green-500 to-blue-500 flex flex-col items-center justify-center space-y-6">
         <div className="text-content text-center">
-        <ReactMarkdown
+          <ReactMarkdown
             components={{
               code({ node, className, children, ...props }) {
                 return (
@@ -124,7 +235,7 @@ const ETHSpace: NextPage = () => {
         </div>
         <div className="button-container">
           <button
-            onClick={handleOnClick}
+            onClick={initPet}
             disabled={isButtonDisabled()}
             className={`p-2 rounded ${
               isButtonDisabled() ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 cursor-pointer"
@@ -133,6 +244,20 @@ const ETHSpace: NextPage = () => {
             Get My Pet (Free Now!)
           </button>
         </div>
+        {pet && (
+          <div className="mt-8">
+            <PetCard
+              id={pet.id}
+              name={pet.name}
+              description={pet.description}
+              level={pet.level}
+              type={pet.type}
+              lastUpdated={pet.lastUpdated}
+              onFeed={updatePetLevel} // Call updatePetLevel when the user clicks "Feed"
+            />
+          </div>
+        )}
+        <br></br>
       </div>
     </div>
   );

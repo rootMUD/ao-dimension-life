@@ -19,7 +19,7 @@ export const menuLinks: HeaderMenuLink[] = [
   },
   {
     label: "Ranking",
-    href: "https://dimension-life.rootmud.xyz/#/rank",
+    href: "https://ar.dimension-life.rootmud.xyz/#/rank",
   },
   {
     label: "Playground",
