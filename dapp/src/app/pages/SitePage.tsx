@@ -19,6 +19,13 @@ import { BsWallet2 } from "react-icons/bs";
 import PetCard from "../elements/PetCard"; // Import the PetCard component
 
 import NavBar from "../elements/NavBar";
+import { Card, CardContent, Box, Typography, Button } from "@mui/material"; // Add this import
+
+// Add this new import for the countdown timer
+import Countdown, { CountdownRenderProps } from "react-countdown";
+
+// Add this import for the Twitter SVG icon
+import { FaTwitter } from "react-icons/fa";
 
 interface Pet {
   name: string;
@@ -225,6 +232,52 @@ class SitePage extends React.Component<{}, SitePageState> {
 
     const aoLinkUrl = `https://www.ao.link/#/entity/${AO_PET}`; // Construct the URL dynamically
 
+    // Calculate the target date in UTC
+    const targetDate = new Date("2024-09-14T04:00:00Z"); // 12:00:00 UTC+8 is 04:00:00 UTC
+
+    // Add this function to render the countdown with explicit typing
+    const renderer = ({
+      days,
+      hours,
+      minutes,
+      seconds,
+      completed,
+    }: CountdownRenderProps) => {
+      if (completed) {
+        return <Typography variant="h5">Game is live!</Typography>;
+      } else {
+        return (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+            {[
+              { label: "Days", value: days },
+              { label: "Hours", value: hours },
+              { label: "Minutes", value: minutes },
+              { label: "Seconds", value: seconds },
+            ].map(({ label, value }) => (
+              <Box key={label} sx={{ textAlign: "center" }}>
+                <Box
+                  sx={{
+                    backgroundColor: "#4a90e2",
+                    color: "white",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    minWidth: "60px",
+                    fontWeight: "bold",
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  {value}
+                </Box>
+                <Typography variant="caption" sx={{ mt: 1 }}>
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        );
+      }
+    };
+
     return (
       <div className="app-container">
         <div className="site-page-header-pc">
@@ -274,6 +327,111 @@ class SitePage extends React.Component<{}, SitePageState> {
           >
             {upper}
           </ReactMarkdown>
+
+          {/* New card implementation with countdown timer */}
+          <Card
+            sx={{
+              maxWidth: 600,
+              margin: "20px auto",
+              backgroundColor: "#e6f3ff",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+              borderRadius: "12px",
+            }}
+          >
+            <CardContent>
+              <Typography
+                variant="h4"
+                sx={{ textAlign: "center", mb: 2, color: "#1a237e" }}
+              >
+                🔥 Newest Game 🔥
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  textAlign: "center",
+                  mb: 2,
+                  fontWeight: "bold",
+                  color: "#303f9f",
+                }}
+              >
+                「Yalla Jamel」
+              </Typography>
+
+              <Typography
+                sx={{
+                  textAlign: "center",
+                  mb: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <a
+                  href="https://x.com/YallaJamel?t=KhNzhipROXdlJLapAPV55g&s=09"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "#1DA1F2",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <FaTwitter
+                    color="#1DA1F2"
+                    size={24}
+                    style={{ marginRight: "8px" }}
+                  />
+                  @YallaJamel
+                </a>
+              </Typography>
+              <Typography sx={{ textAlign: "center", mb: 3 }}>
+                The first match-3 game on AO is coming!
+              </Typography>
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ textAlign: "center", mb: 1, fontWeight: "bold" }}
+                >
+                  Alpha Version（测试版）: 
+                </Typography>
+                
+                {/* <Countdown date={targetDate} renderer={renderer} /> */}
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+                <Typography>👇👇</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
+                  <Typography>👉👉</Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    href="https://t.me/Yalla_Jamel_Bot/camel_app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      backgroundColor: '#4a90e2',
+                      '&:hover': {
+                        backgroundColor: '#3a78c2',
+                      },
+                      mx: 1,
+                    }}
+                  >
+                    Launch App
+                  </Button>
+                  <Typography>👈👈</Typography>
+                </Box>
+                <Typography>☝️☝️</Typography>
+              </Box>
+              <iframe
+                src="https://camel-vox.vercel.app/"
+                title="Camel Vox"
+                width="100%"
+                height="400px"
+                style={{ border: "none", borderRadius: "8px" }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Existing content */}
           <center>
             <p>The 1st Pet Game on AO which is </p>
           </center>
@@ -300,6 +458,7 @@ class SitePage extends React.Component<{}, SitePageState> {
             </p>
           </center>
           <br></br>
+          {/* Existing input fields and button */}
           <center>
             <div>
               <label>
