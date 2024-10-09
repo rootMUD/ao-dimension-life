@@ -4,7 +4,7 @@
 
 > **Base URL:**  `https://ao-dimension-life-1.onrender.com`
 
-### **1. Initialize Pet**
+### 1. Initialize Pet
 
 - **Endpoint:** `/init_pet`
 - **Method:** `GET`

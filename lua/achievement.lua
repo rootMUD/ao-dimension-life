@@ -1,8 +1,8 @@
--- TODO: avoid the totally same achievement by title.
--- ProcessId: [TODO]
+-- $ aos achievement-v2 --wallet /Users/liaohua/arweave-wallet-2.json --module=u1Ju_X8jiuq4rX9Nh-ZGRQuYQZgV2MKLMT3CZsykk54
+-- ProcessId: t5n7Op0zPQsro-NZxIuGX4izLJF5-lixZvRsO4eLZoY
 local json = require("json")
 local sqlite3 = require("lsqlite3")
-local admin = "wbIGThLriLEzpuL5yS__aba2jn0YAF471adJTrc0Pdg"
+local admin = "t5n7Op0zPQsro-NZxIuGX4izLJF5-lixZvRsO4eLZoY"
 
 DB = DB or sqlite3.open_memory()
 
@@ -36,15 +36,15 @@ local function query(stmt)
 end
 
 -- Function to generate a random hexadecimal string
-local function generateRandomHex(length)
-  local chars = '0123456789abcdef'
-  local hex = ''
-  for i = 1, length do
-    local randIndex = math.random(1, #chars)
-    hex = hex .. chars:sub(randIndex, randIndex)
-  end
-  return hex
-end
+-- local function generateRandomHex(length)
+--   local chars = '0123456789abcdef'
+--   local hex = ''
+--   for i = 1, length do
+--     local randIndex = math.random(1, #chars)
+--     hex = hex .. chars:sub(randIndex, randIndex)
+--   end
+--   return hex
+-- end
 
 -- Function to initialize an achievement in the database
 local function initAchievement(data, timestamp)
@@ -159,12 +159,14 @@ end
 
 -- Handler to append data to an achievement
 -- aos> Send({ Target = ao.id, Action = "AppendAchievement" , Data = '{"data": "try", "title": "try", "proven": "", "address": "0x01"}'})
+-- Handler to append data to an achievement
 Handlers.add(
   "AppendAchievement",
   Handlers.utils.hasMatchingTag("Action", "AppendAchievement"),
   function (msg)
     -- Check if the sender is in the whitelist
     if not isInWhitelist(msg.From) then
+      print("Permission denied: Sender not in whitelist")
       Handlers.utils.reply("Permission denied: Sender not in whitelist")(msg)
       return
     end
@@ -174,11 +176,13 @@ Handlers.add(
 
     -- Generate a unique id for this achievement
     local newAchievement = {
-      id = generateRandomHex(32), -- Unique ID for this achievement
+      -- id = generateRandomHex(32), -- Unique ID for this achievement
       process_id = msg.From,
       data = dataJson.data,
       title = dataJson.title,
       proven = dataJson.proven,
+      process_id_and_title = msg.From .. "-" .. dataJson.title,
+      if_airdroped = false
     }
 
     -- Prepare the SQL statement to retrieve the current achievements
@@ -187,6 +191,7 @@ Handlers.add(
     ]]
 
     if not stmt then
+      print("Failed to prepare SQL statement")
       error("Failed to prepare SQL statement: " .. DB:errmsg())
     end
 
@@ -201,6 +206,19 @@ Handlers.add(
 
     -- Decode current achievements data
     local achievementData = json.decode(achievement.data)
+
+    -- Check for duplicate achievement with the same process_id_and_title
+    for _, existingAchievement in ipairs(achievementData) do
+      if existingAchievement.process_id_and_title == newAchievement.process_id_and_title then
+        print("Duplicate achievement title for the same process ID")
+        Handlers.utils.reply("Duplicate achievement title for the same process ID")(msg)
+        stmt:reset()
+        stmt:finalize()
+        return
+      end
+    end
+
+    -- Append new achievement if not a duplicate
     table.insert(achievementData, newAchievement)
 
     -- Prepare the SQL statement to update the achievements
@@ -235,6 +253,7 @@ Handlers.add(
 )
 
 
+
 -- Query with cursor
 -- Function to get all achievements with pagination
 local function getAllAchievements(cursor, limit)
@@ -264,7 +283,7 @@ local function getAllAchievements(cursor, limit)
 end
 
 
--- 
+-- aos> Send({ Target = ao.id, Action = "GetAllAchievements", Data = '{"cursor": "0", "limit": "10"}'})
 -- Handler to get all achievements with pagination
 Handlers.add(
   "GetAllAchievements",
@@ -309,6 +328,7 @@ local function getAllWhitelists(cursor, limit)
   return rows
 end
 
+-- aos> Send({ Target = ao.id, Action = "GetAllWhitelists", Data='{"cursor": 0}'})
 -- Handler to get all achievements with pagination
 Handlers.add(
   "GetAllWhitelists",

@@ -4,108 +4,24 @@ import {
   send,
 } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
-import Arweave from "https://cdn.skypack.dev/arweave";
-import {ethers} from "npm:ethers";
-
-// import { EthereumSigner } from "https://github.com/leeduckgo/arbundles/raw/master/src/signing/chains/ethereumSigner.ts";
-
-import { createData } from "https://cdn.skypack.dev/arseeding-arbundles/src/file/createData.ts";
-
-// import { InjectedEthereumSigner } from "https://cdn.skypack.dev/arseeding-arbundles/src/signing/index.ts";
-
-// import {
-//   dryrun,
-//   message,
-//   createDataItemSigner,
-// } from "https://esm.sh/@permaweb/aoconnect@0.0.58";
 import {
   dryrun,
   message,
-} from "npm:@permaweb/aoconnect@0.0.58";
+} from "https://esm.sh/@permaweb/aoconnect@0.0.58";
 
 console.log("Hello from dimension Life!");
-const arweave = Arweave.init({});
+
+// key will be used in the future.
 const key = Deno.env.get("API_KEY") || "34e968837d573dc61e965e58fa29cc05";
+
 const AO_PET =
   Deno.env.get("AO_PET") || "cO4thcoxO57AflN5hfXjce0_DydbMJclTU9kC3S75cg";
-const PRIV = Deno.env.get("PRIV_KEY");
-
-let arweaveWallet: any;
-if (PRIV) {
-  arweaveWallet = JSON.parse(PRIV);
-} else {
-  arweaveWallet = await getWallet();
-}
 
 const kv = await Deno.openKv(); // Open the key-value store
-
-async function createDataItemSigner({
-  data,
-  tags = [],
-  target,
-  anchor,
-}: {
-  data: any;
-  tags?: { name: string; value: string }[];
-  target?: string;
-  anchor?: string;
-}): Promise<{ id: string; raw: ArrayBuffer }> {
-  // Use the locally created or loaded Ethereum wallet
-  const wallet = await getWallet();
-const signer = null;
-  // const signer = new EthereumSigner("8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f");
-  const dataItem = createData(data, signer, { tags, target, anchor });
-  console.log("dataItem:", dataItem);
-  // Sign the data item
-  await dataItem.sign(signer);
-
-  return {
-    id: dataItem.id,
-    raw: dataItem.getRaw(),
-  };
-}
 
 async function getPet(address: string) {
   const result = await getDataFromAO(AO_PET, "getPet", { address: address });
   return result;
-}
-
-// Ethereum related functions
-
-async function getWallet() {
-  if (PRIV) {
-    // Load the wallet from the provided private key
-    const wallet = new ethers.Wallet(PRIV);
-    return wallet;
-  } else {
-    // Generate a new Ethereum wallet
-    const wallet = ethers.Wallet.createRandom();
-    return wallet;
-  }
-}
-
-// TODO: Implement the messageToAO and the initPet Get Method.
-async function messageToAO(
-  process: string,
-  data: { [key: string]: unknown },
-  action: string
-) {
-  try {
-    let ethWallet = await getWallet();
-    console.log("ethWallet:", ethWallet);
-    const messageId = await message({
-      process: "Rijbx6FduUMdCZM0tJ4PPxXljUNy1m0u_kmMIFGFM5c",
-      signer: createDataItemSigner(ethWallet),
-      tags: [{ name: "Action", value: "AddNew" }],
-      data: "data",
-    });
-
-    // console.log("messageId:", messageId)
-    return messageId;
-  } catch (error) {
-    console.log("messageToAO -> error:", error);
-    return "";
-  }
 }
 
 async function getDataFromAO(process: string, action: string, data?: any) {
@@ -176,44 +92,40 @@ router
     const replies = await getDataFromAO(AO_PET, "getCount");
     context.response.body = replies;
   })
-  .get("/init_pet", async (context) => {
+  .get("/check_name_unique", async (context) => {
     const queryParams = context.request.url.searchParams;
     const name = queryParams.get("name");
-    const description = queryParams.get("description");
-    const address = queryParams.get("address");
-
-    if (!name || !description || !address) {
-      context.response.status = 400;
-      context.response.body = { success: false, message: "Missing parameters" };
-      return;
-    }
-
-    try {
-      const messageID = await messageToAO(
-        AO_PET,
-        { name: name, description: description, address: address },
-        "initPet"
-      );
-      console.log("messageID:", messageID);
-      const petInfo = await getPet(address);
-      context.response.body = { success: true, result: petInfo };
-    } catch (error) {
-      context.response.status = 500;
-      context.response.body = { success: false, message: error.message };
-    }
+  
+    const result = await getDataFromAO(AO_PET, "checkNameUnique", { name: name });
+    context.response.body = result;
   })
   .get("/get_pet", async (context) => {
     const queryParams = context.request.url.searchParams;
     const address = queryParams.get("address");
-    let result: Array<any> = [{}];
-    if (address) {
-      result = await getPet(address);
-    } else {
-      // Handle the case when address is null
+  
+    if (!address) {
+      // Handle the case when the address query parameter is missing
       context.response.status = 400;
+      context.response.body = { error: "Address parameter is required." };
+      return;
     }
-    context.response.body = result[0];
-  })
+  
+    try {
+      const result = await getPet(address);
+  
+      if (result && result.length > 0 && result[0]) {
+        context.response.status = 200;
+        context.response.body = result[0];
+      } else {
+        context.response.status = 404;
+        context.response.body = { error: "Pet not found for the provided address." };
+      }
+    } catch (error) {
+      // Handle any potential errors during the getPet function call
+      context.response.status = 500;
+      context.response.body = { error: "An error occurred while fetching the pet data." };
+    }
+  })  
   .get("/get_pet_with_auth", async (context) => {
     const queryParams = context.request.url.searchParams;
     const token = queryParams.get("token") as string;

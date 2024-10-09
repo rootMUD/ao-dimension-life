@@ -384,16 +384,13 @@ class SitePage extends React.Component<{}, SitePageState> {
                   @YallaJamel
                 </a>
               </Typography>
-              <Typography sx={{ textAlign: "center", mb: 3 }}>
-                The first match-3 game on AO is coming!
+              <Typography sx={{ textAlign: "center", mb: 1 }}>
+                The first match-3 game on AO🐪 Pass the MISSON and get the achievement!
+              </Typography>
+              <Typography sx={{ textAlign: "center", mb: 1 }}>
+                AO 上的首个三消类游戏!🐪 完成任务赢得你的 Camel 徽章!
               </Typography>
               <Box sx={{ mb: 3 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ textAlign: "center", mb: 1, fontWeight: "bold" }}
-                >
-                  Alpha Version（测试版）: 
-                </Typography>
                 
                 {/* <Countdown date={targetDate} renderer={renderer} /> */}
               </Box>
@@ -404,7 +401,7 @@ class SitePage extends React.Component<{}, SitePageState> {
                   <Button
                     variant="contained"
                     color="primary"
-                    href="https://t.me/Yalla_Jamel_Bot/camel_app"
+                    href="https://camel.rootmud.xyz"
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{

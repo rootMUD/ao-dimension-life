@@ -77,8 +77,7 @@ local function checkNameUnique(msg)
   stmt:finalize()
 end
 
--- TODO: i think the reply has some prob so it should fix the reply in the future.
-local function initPet(data, timestamp)
+local function initPet(msg, data, timestamp)
   -- Decode the JSON data
   local dataJson = json.decode(data)
   local name = dataJson.name
@@ -100,7 +99,7 @@ local function initPet(data, timestamp)
 
   if existingPet then
     print("Error: Name already exists")
-    Handlers.utils.reply("Error: Name already exists")
+    Handlers.utils.reply("Error: Name already exists")(msg)
     return
   end
 
@@ -129,10 +128,10 @@ local function initPet(data, timestamp)
   local result = stmt:step()
   if result ~= sqlite3.DONE then
     print("Error: Address already exists")
-    Handlers.utils.reply("Error: Address already exists")
+    Handlers.utils.reply("Error: Address already exists")(msg)
   else
     print('Pet Added!')
-    Handlers.utils.reply("Pet Added!")
+    Handlers.utils.reply("Pet Added!")(msg)
   end
 
   -- Reset and finalize the statements
@@ -218,7 +217,7 @@ local function getAllPets()
 end
 
 -- Function to update the level of a pet by petid
-local function updatePetLevel(pet, timestampNow)
+local function updatePetLevel(msg, pet, timestampNow)
   local currentPetStmt = DB:prepare [[
     SELECT * FROM pets WHERE id = :id;
   ]]
@@ -238,7 +237,7 @@ local function updatePetLevel(pet, timestampNow)
     if timestampNow - currentPet.lastUpdated < 3600000 then 
       -- 3600,000 mileseconds = 1 hour
       print('Not now')
-      Handlers.utils.reply("Not now")(pet)
+      Handlers.utils.reply("Not now")(msg)
       return
     end
 
@@ -260,7 +259,7 @@ local function updatePetLevel(pet, timestampNow)
     stmt:step()
     stmt:reset()
     print('Pet Level Updated!')
-    Handlers.utils.reply("Updated")(pet)
+    Handlers.utils.reply("Updated")(msg)
   else
     print('Pet not updated. New level must be higher than the current level.')
   end
@@ -314,10 +313,10 @@ Handlers.add(
   "initPet",
   Handlers.utils.hasMatchingTag("Action", "initPet"),
   function (msg)
-    initPet(msg.Data, msg.Timestamp)
+    initPet(msg, msg.Data, msg.Timestamp)
   end
 )
-
+-- Send({ Target = ao.id, Action = "getPet", Data = '{"address": "0x01100"}' })
 -- Add getPet Handler
 Handlers.add(
   "getPet",
@@ -349,7 +348,7 @@ Handlers.add(
   function (msg)
     local pet = getPet(msg.Data)[1]
     if pet then
-      updatePetLevel(pet, msg.Timestamp)
+      updatePetLevel(msg, pet, msg.Timestamp)
     else
       Handlers.utils.reply("Pet not found!")(msg)
     end
@@ -428,6 +427,7 @@ Handlers.add(
 --   end
 -- )
 
+-- TODO: change the info to the aos cmd.
 Handlers.add(
   "Info",
   Handlers.utils.hasMatchingTag("Action", "Info"),
