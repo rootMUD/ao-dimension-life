@@ -19,7 +19,7 @@ import { BsWallet2 } from "react-icons/bs";
 import PetCard from "../elements/PetCard"; // Import the PetCard component
 
 import NavBar from "../elements/NavBar";
-import { Card, CardContent, Box, Typography, Button } from "@mui/material"; // Add this import
+import { Card, CardContent, Box, Typography, Button, Container } from "@mui/material"; // Add this import
 
 // Add this new import for the countdown timer
 import Countdown, { CountdownRenderProps } from "react-countdown";
@@ -328,107 +328,220 @@ class SitePage extends React.Component<{}, SitePageState> {
             {upper}
           </ReactMarkdown>
 
-          {/* New card implementation with countdown timer */}
-          <Card
-            sx={{
-              maxWidth: 600,
-              margin: "20px auto",
-              backgroundColor: "#e6f3ff",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-              borderRadius: "12px",
-            }}
+          <Typography
+            variant="h4"
+            sx={{ textAlign: "center", mb: 2, color: "#1a237e" }}
           >
-            <CardContent>
-              <Typography
-                variant="h4"
-                sx={{ textAlign: "center", mb: 2, color: "#1a237e" }}
-              >
-                🔥 Newest Game 🔥
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{
-                  textAlign: "center",
-                  mb: 2,
-                  fontWeight: "bold",
-                  color: "#303f9f",
-                }}
-              >
-                「Yalla Jamel」
-              </Typography>
+            🔥 Newest Games 🔥
+          </Typography>
 
-              <Typography
+          <Container maxWidth="lg">
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+              <Card
                 sx={{
-                  textAlign: "center",
-                  mb: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: { xs: '100%', md: 'calc(50% - 16px)' },
+                  backgroundColor: "#e6f3ff",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  borderRadius: "12px",
                 }}
               >
-                <a
-                  href="https://x.com/YallaJamel?t=KhNzhipROXdlJLapAPV55g&s=09"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: "#1DA1F2",
-                    textDecoration: "none",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FaTwitter
-                    color="#1DA1F2"
-                    size={24}
-                    style={{ marginRight: "8px" }}
-                  />
-                  @YallaJamel
-                </a>
-              </Typography>
-              <Typography sx={{ textAlign: "center", mb: 1 }}>
-                The first match-3 game on AO🐪 Pass the MISSON and get the achievement!
-              </Typography>
-              <Typography sx={{ textAlign: "center", mb: 1 }}>
-                AO 上的首个三消类游戏!🐪 完成任务赢得你的 Camel 徽章!
-              </Typography>
-              <Box sx={{ mb: 3 }}>
-                
-                {/* <Countdown date={targetDate} renderer={renderer} /> */}
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-                <Typography>👇👇</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
-                  <Typography>👉👉</Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href="https://camel.rootmud.xyz"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <CardContent>
+                  <Typography
+                    variant="h5"
                     sx={{
-                      backgroundColor: '#4a90e2',
-                      '&:hover': {
-                        backgroundColor: '#3a78c2',
-                      },
-                      mx: 1,
+                      textAlign: "center",
+                      mb: 2,
+                      fontWeight: "bold",
+                      color: "#303f9f",
                     }}
                   >
-                    Launch App
-                  </Button>
-                  <Typography>👈👈</Typography>
-                </Box>
-                <Typography>☝️☝️</Typography>
-              </Box>
-              <iframe
-                src="https://camel-vox.vercel.app/"
-                title="Camel Vox"
-                width="100%"
-                height="400px"
-                style={{ border: "none", borderRadius: "8px" }}
-              />
-            </CardContent>
-          </Card>
+                    「Relive 人生重开模拟器」
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      mb: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <a
+                      href="https://x.com/0xleeduckgo"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#1DA1F2",
+                        textDecoration: "none",
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FaTwitter
+                        color="#1DA1F2"
+                        size={24}
+                        style={{ marginRight: "8px" }}
+                      />
+                      @0xleeduckgo
+                    </a>
+                  </Typography>
+                  <Typography sx={{ textAlign: "center", mb: 1 }}>
+                    Generate a life based on your choices and AI🤖.
+                  </Typography>
+                  <Typography sx={{ textAlign: "center", mb: 1 }}>
+                    基于 AI 和选择的人生模拟器~
+                  </Typography>
+                  <Box sx={{ mb: 3 }}>
+                    {/* <Countdown date={targetDate} renderer={renderer} /> */}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      mb: 3,
+                    }}
+                  >
+                    <Typography>👇👇</Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>
+                      <Typography>👉👉</Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        // href="https://camel.rootmud.xyz"
+                        // target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          backgroundColor: "#4a90e2",
+                          "&:hover": {
+                            backgroundColor: "#3a78c2",
+                          },
+                          mx: 1,
+                        }}
+                      >
+                        On the way...
+                      </Button>
+                      <Typography>👈👈</Typography>
+                    </Box>
+                    <Typography>☝️☝️</Typography>
+                  </Box>
+                  <iframe
+                    src="https://arweave.net/Nzxwnihz6LCcwOSp2TzpgJM2uT8yCFOLSGFCOXlmfWE"
+                    title="Capybara Vox"
+                    width="100%"
+                    height="400px"
+                    style={{ border: "none", borderRadius: "8px" }}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card
+                sx={{
+                  width: { xs: '100%', md: 'calc(50% - 16px)' },
+                  backgroundColor: "#e6ffe6",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  borderRadius: "12px",
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      textAlign: "center",
+                      mb: 2,
+                      fontWeight: "bold",
+                      color: "#303f9f",
+                    }}
+                  >
+                    「Yalla Jamel」
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      mb: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <a
+                      href="https://x.com/YallaJamel?t=KhNzhipROXdlJLapAPV55g&s=09"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#1DA1F2",
+                        textDecoration: "none",
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FaTwitter
+                        color="#1DA1F2"
+                        size={24}
+                        style={{ marginRight: "8px" }}
+                      />
+                      @YallaJamel
+                    </a>
+                  </Typography>
+                  <Typography sx={{ textAlign: "center", mb: 1 }}>
+                    The first match-3 game on AO🐪 Pass the MISSON and get the
+                    achievement!
+                  </Typography>
+                  <Typography sx={{ textAlign: "center", mb: 1 }}>
+                    AO 上的首个三消类游戏!🐪 完成任务赢得你的 Camel 徽章!
+                  </Typography>
+                  <Box sx={{ mb: 3 }}>
+                    {/* <Countdown date={targetDate} renderer={renderer} /> */}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      mb: 3,
+                    }}
+                  >
+                    <Typography>👇👇</Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", my: 1 }}>
+                      <Typography>👉👉</Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        href="https://camel.rootmud.xyz"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          backgroundColor: "#4a90e2",
+                          "&:hover": {
+                            backgroundColor: "#3a78c2",
+                          },
+                          mx: 1,
+                        }}
+                      >
+                        Launch App
+                      </Button>
+                      <Typography>👈👈</Typography>
+                    </Box>
+                    <Typography>☝️☝️</Typography>
+                  </Box>
+                  <iframe
+                    src="https://camel-vox.vercel.app/"
+                    title="Camel Vox"
+                    width="100%"
+                    height="400px"
+                    style={{ border: "none", borderRadius: "8px" }}
+                  />
+                </CardContent>
+              </Card>
+            </Box>
+          </Container>
 
           {/* Existing content */}
+          <br></br>
           <center>
             <p>The 1st Pet Game on AO which is </p>
           </center>
